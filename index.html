@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+<meta name="theme-color" content="#A02828" />
+<meta name="description" content="FixWithKim — Premium bilingual handyman services across Dallas-Fort Worth. Licensed, insured, English & Korean. Free quotes within 24 hours. 김씨와 함께 정성껏 고쳐드립니다." />
+<meta property="og:title" content="FixWithKim · Handyman DFW · 김씨와 함께" />
+<meta property="og:description" content="Premium bilingual handyman services across Dallas-Fort Worth. Free quotes within 24 hours." />
+<meta property="og:type" content="website" />
+<title>FixWithKim · Handyman DFW · 김씨와 함께</title>
+
+<!-- Tailwind (Play CDN - no build needed) -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- React + ReactDOM (production UMD) -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<!-- Babel to transpile JSX in-browser -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<!-- Fonts (also used by the intro before React mounts) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Noto+Serif+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+  html, body { margin: 0; padding: 0; background-color: #FAF4E6; }
+  #root { min-height: 100vh; }
+
+  /* ============ INTRO: KOREAN INK-BRUSH REVEAL (≈2s) ============ */
+  .fw-intro {
+    position: fixed; inset: 0; z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #FAF4E6;
+    overflow: hidden;
+    animation: fwIntroExit 0.5s cubic-bezier(0.7, 0, 0.84, 0) 2.0s forwards;
+  }
+  /* warm paper glow */
+  .fw-intro::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 50% 48%, rgba(184,155,90,0.10) 0%, transparent 58%),
+      radial-gradient(circle at 50% 48%, rgba(160,40,40,0.03) 0%, transparent 62%);
+  }
+
+  /* Stage that holds the brush + text */
+  .fw-brush-stage {
+    position: relative;
+    width: min(560px, 86vw);
+    display: flex; flex-direction: column; align-items: center;
+  }
+
+  /* The ink brush sweep (SVG sits on top, animated via stroke-dashoffset) */
+  .fw-brush-svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .fw-brush-path {
+    fill: none;
+    stroke: #A02828;
+    stroke-width: 34;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1100;
+    stroke-dashoffset: 1100;
+    filter: url(#fwInkTexture);
+    animation: fwBrushDraw 0.95s cubic-bezier(0.65, 0, 0.35, 1) 0.25s forwards;
+  }
+  /* a second, lighter trailing stroke for ink depth */
+  .fw-brush-path2 {
+    fill: none;
+    stroke: #8C1F1F;
+    stroke-width: 12;
+    stroke-linecap: round;
+    opacity: 0.55;
+    stroke-dasharray: 1100;
+    stroke-dashoffset: 1100;
+    animation: fwBrushDraw 0.95s cubic-bezier(0.65, 0, 0.35, 1) 0.32s forwards;
+  }
+
+  /* Wordmark revealed by a clip wipe that follows the brush */
+  .fw-brush-word {
+    position: absolute;
+    top: 50%; left: 0; right: 0;
+    transform: translateY(-50%);
+    text-align: center;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(34px, 8vw, 58px); font-weight: 600; letter-spacing: -0.02em;
+    color: #FAF4E6;
+    white-space: nowrap;
+    /* reveal left-to-right in sync with the brush */
+    clip-path: inset(0 100% 0 0);
+    animation: fwWordWipe 0.85s cubic-bezier(0.65, 0, 0.35, 1) 0.55s forwards;
+    pointer-events: none;
+  }
+  .fw-brush-word .w { font-style: italic; font-weight: 300; }
+
+  /* Korean tagline fades up after the stroke lands */
+  .fw-brush-ko {
+    margin-top: 26px;
+    font-family: 'Noto Serif KR', serif; font-weight: 600;
+    font-size: clamp(12px, 3.4vw, 15px); letter-spacing: 0.2em; color: #B89B5A;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fwKoIn 0.6s ease-out 1.35s forwards;
+  }
+
+  @keyframes fwBrushDraw {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes fwWordWipe {
+    0%   { clip-path: inset(0 100% 0 0); }
+    100% { clip-path: inset(0 0 0 0); }
+  }
+  @keyframes fwKoIn {
+    0%   { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fwIntroExit {
+    0%   { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.03); visibility: hidden; }
+  }
+
+  /* Respect reduced-motion: skip the brush sweep, do a calm fade */
+  @media (prefers-reduced-motion: reduce) {
+    .fw-brush-path, .fw-brush-path2 { animation: none; stroke-dashoffset: 0; }
+    .fw-brush-word { animation: none; clip-path: inset(0 0 0 0); }
+    .fw-brush-ko { animation: fwKoIn 0.4s ease-out 0.2s forwards; }
+    .fw-intro { animation: fwIntroExit 0.4s ease 1.2s forwards; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- ============ 2-SECOND HANKO INTRO ============ -->
+<div class="fw-intro" id="fw-intro">
+  <div class="fw-brush-stage">
+    <svg class="fw-brush-svg" viewBox="0 0 560 150" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        <filter id="fwInkTexture" x="-20%" y="-50%" width="140%" height="200%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.18" numOctaves="2" seed="7" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="9" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+      <!-- main ink sweep -->
+      <path class="fw-brush-path"
+        d="M24 86 C 120 40, 210 120, 300 74 S 470 36, 538 72" />
+      <!-- lighter trailing detail -->
+      <path class="fw-brush-path2"
+        d="M30 92 C 130 52, 215 124, 302 80 S 468 46, 532 76" />
+    </svg>
+    <div class="fw-brush-word">Fix<span class="w">with</span>Kim</div>
+  </div>
+  <div class="fw-brush-ko">김씨와 함께</div>
+</div>
+
+<script type="text/babel" data-presets="react">
+//==================================================================
+// FixWithKim — single-file build for GitHub Pages
+//==================================================================
+
+// ---- Inline SVG icon set (lucide paths, ISC license) ----
+const ICON_PATHS = {
+  Phone: `<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>`,
+  Mail: `<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>`,
+  MapPin: `<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>`,
+  Star: `<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>`,
+  Check: `<path d="M20 6 9 17l-5-5"/>`,
+  ChevronDown: `<path d="m6 9 6 6 6-6"/>`,
+  X: `<path d="M18 6 6 18"/><path d="m6 6 12 12"/>`,
+  MessageCircle: `<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>`,
+  ArrowRight: `<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>`,
+  ArrowUpRight: `<path d="M7 7h10v10"/><path d="M7 17 17 7"/>`,
+  Hammer: `<path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/>`,
+  Paintbrush: `<path d="m14.622 17.897-10.68-2.913"/><path d="M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 9.354a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z"/><path d="M9 8c-1.804 2.71-3.97 3.46-6.583 3.948a.507.507 0 0 0-.302.819l7.32 8.883a1 1 0 0 0 1.185.204C12.735 19.74 16 16.71 16 14"/>`,
+  Plug: `<path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>`,
+  Droplets: `<path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 4.7 7 2.3c-.29 2.4-1.45 3.83-2.59 4.76S2.7 9.1 2.7 10.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/>`,
+  Home: `<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`,
+  Sparkles: `<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>`,
+  Shield: `<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>`,
+  Languages: `<path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>`,
+  Clock: `<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>`,
+  Award: `<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>`,
+  Send: `<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/>`,
+  Camera: `<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>`,
+  Quote: `<path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/>`,
+  Heart: `<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>`,
+};
+
+function makeIcon(name) {
+  return function Icon({ size = 24, className = "", style = {}, strokeWidth = 2, ...rest }) {
+    return React.createElement("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      width: size, height: size, viewBox: "0 0 24 24",
+      fill: (className && className.indexOf("fill-") !== -1) ? "currentColor" : "none",
+      stroke: "currentColor", strokeWidth: strokeWidth,
+      strokeLinecap: "round", strokeLinejoin: "round",
+      className: className, style: style,
+      dangerouslySetInnerHTML: { __html: ICON_PATHS[name] },
+      ...rest
+    });
+  };
+}
+
+const Phone = makeIcon('Phone');
+const Mail = makeIcon('Mail');
+const MapPin = makeIcon('MapPin');
+const Star = makeIcon('Star');
+const Check = makeIcon('Check');
+const ChevronDown = makeIcon('ChevronDown');
+const X = makeIcon('X');
+const MessageCircle = makeIcon('MessageCircle');
+const ArrowRight = makeIcon('ArrowRight');
+const ArrowUpRight = makeIcon('ArrowUpRight');
+const Hammer = makeIcon('Hammer');
+const Paintbrush = makeIcon('Paintbrush');
+const Plug = makeIcon('Plug');
+const Droplets = makeIcon('Droplets');
+const Home = makeIcon('Home');
+const Sparkles = makeIcon('Sparkles');
+const Shield = makeIcon('Shield');
+const Languages = makeIcon('Languages');
+const Clock = makeIcon('Clock');
+const Award = makeIcon('Award');
+const Send = makeIcon('Send');
+const Camera = makeIcon('Camera');
+const Quote = makeIcon('Quote');
+const Heart = makeIcon('Heart');
+
+const { useState } = React;
+
+
+//------------------------------------------------------------------
+// Main component
+//------------------------------------------------------------------
+
+const LOGO_URL = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAJYAlgDASIAAhEBAxEB/8QAHQABAQACAgMBAAAAAAAAAAAAAAECBwYIBAUJA//EAFwQAAEDAgQFAQYDBAQJBgoIBwEAAhEDIQQFMUEGBxJRYXEIEyIygZFCobEUFSPBUmLR8BYXJDNyorPh8QkYJoKSsic0NkRVY2W0wtMlOENFU2R0dTdXc4STw9L/xAAaAQEBAQEBAQEAAAAAAAAAAAAAAQIDBAUG/8QAMBEBAQACAQMDAgQFBQEBAAAAAAECEQMSITEEQVETIgUyYXEUgZGxwUJSoeHwM0P/2gAMAwEAAhEDEQA/AO3pgE7oTcdkcLype3deZtRZvZIg+qOjqG4Q7qgNIQ6QgGoH3V9FAcdR4UdePVIva9k7qi+YUB0A2EKmR9FD80oBmwQkkGCmp1sqDB/NFEBMR5UvCrY0/RABjXunYnupr6ysjr27IIdboPkuhuDsm8IgYiJQmWobOEiyDzvdFNp+qX+yv4BCxE2juiH6KuNzHdSwOugsgue0FBSAJlB63R2hJ3QRugCOyAm1kNm/qgE95sgRsfVQxukTP2TVAJtqrpqnk6JugCSEJ+yN0PokWH3QGWkeVNfsqLgndAbooVfEhTaUMk+UQdsAjrW+iG5kfdDEooDLbdk3sgUKIy/ETspoI+qCBITe3ZQXcqDco6xugnpI7KgJVbYeVBczCD5ieyCi6xBkjsU38dlXa+UFF7hRx7KiBEfRYzoEVluVDN47Knc+FDHayAPmsruAoLCydrXRC/VGyG4AQG+vkodBP1RV0lQakbJ6oLaogO/97oNfEoI6fqoPS6Ku19UJ7odYHbVS39+yIExqroQCpNxCdtlABsSrOyxsCTsqLHuqqgnxCauifCQBIlDbv6og7sp/YhGgTyVBZU1FlTYkwpsR4hUUHSEUGoKJoHC0+VDqSTCug/NTcCdVAPfVVTXxfZUwLTqgTqlymg8koBZUDO2miEX8Qg1B0EqFFUamdwkaeiaOnVDsEQNgIQ2AhNYGqXiUU0FlRYC+yDTuUmwKCNt91TEj1UGm9lSL+iCb39VR4U1MLKLIMTeDoqLiFPJ7BWbSDtdEQSRrsqRAMbKN07KneUVB6edFSYkqOnUrI2E9kGJ+bwFdinn6IDvtughm3bdUkQmwTYIIdY2VNvWygufyVOsfVAGgCGCDKHXRCNTogTf1MIDr4UJi5Gg+yosDJQRuseEvB8IbG0eE1m2oQZGwj7rG6p0j6qbydkRRogSPhjyrpO1pRUab+EIvZGWHlB+qC9ydlBp2lS5BtZZeqCPNiSmhjxKhmL2sqSOqBeEBuiDWPyS/fZPKCC8+qsyTeVB32KrfmNroIdEOkqm4gIflHYILMthD+cKA/wB5VvP5BA/uFjv9FRYAyogvpokgm6k6iE3hEXdHH4SgFu+yOsEU0EKbSEFyfRJJCANCZUGsKjT6XS+vdEJEwEPa8hBpMWQfyRT6JNhAsUNh5TeBdAtM91b3JUbqSrc7aBQS8yruB5UBt3hWIVAwRbzqodJ+qv00TaLIIiAyJRAtdYjSfKy1HZTcKItoJ0UGvnzskyXDYCEEwgtohBGseimp2VEiTKBqR6qG0KtiJNuyalBSNB9ljYlXeyaFA0EbKkxdQaWuq6OlUO5UER2Cokg9lNTCKo0j6pv6p2EXIQ9wghH5fmrHZNTB2Q6E3ugljtAQ6FXXqBUN4H5oLYmB2V8Qo3ue6DVEQSbeFXQNPRWQHKaCO6ATJjZDb0UPj7Kg/qihHeyg1GtlTcx5SIgT9kRALqk3kBPQaoSgfiB+3ojtCfqjjY3iEFyD2KB6qASfKDRUai6Khi3hU7hQagISR+igp0Uiw7kKgGRJSwE7qoEXQC0+FfTcyhOg31QRuiDUBBMWQEet0U1MBDcAeVRE376qD5giEWH5pYlNAPWZQWGsIGgJGqXI9FSZDViBaJjdFUC0dlBaY7KgfEe0qTf+SIDdBJvsqflUGgt4QZCzROqxEWQXI33Tugrd5tCWB+26AwAl5id0GJHxa2Gqva6pgkxosW3dKgz2hTUXVA+YpYGJsqMW/LdJjb/ijdY7iVdwdQggu621kse+qvnypcHTygACCLodFbWg6BRt76IodLwLXSZQ97KjT6oiaTCoGyhGyouY7IoBDVXWuoY/KyHUBENAFNABsqdI8IbQB91FRosiNtbXuiogncpEG+11R8vlLKIh1k9k0N9Iun5BXvKCOMAxGqoHwzrKlyB4V/AR2RVNwQYusQdlTtH1UNyY7wiLurs0KE3mUP1hFWfjgKDsgJGsaShFwiKCZ+qh1nvZU6qbklVVPczZCIMBBcwpP1KIaEq6DzCgjQBXX0QRul7WVsZv5U2koNACboq+pRokmU3n7Jo/1F0Q1Tz/AHCR/f6qeUFPyyN0IGg8JtEodEAaze6TomkFBtOsoGjx9gkARMwgESN1DtGmiCkSfqqLfaUN7KTA+qBbpMWCG32QQAQh001RUYbob32VFojsozQIK3c+VTYgoNSD6rH8IJ9ERRYfZWIidyh7QpJICKH5dLnsgHSI/NAQXWGiv40RDv6poTa6G7je2iojtFkEOkWgGUj4SdSm30UHY6IqjQFNDJjwodvKp2sogDsVB80lUDU9k/Fp6opEgBTxvoqZUdrOwF0FFmjuqBP6KaD0ug+WNO6qB0CG0bIVCZEiPCBof1V+0qEgHxsruI7IMvwnyLqak90tf0UOvpqgAGdtEFwBpdG6fVSJae6AbCEiSrsCptrugG7ZCoIAUPfZDuUUdMR3VGwnaSoPzVmx9EQPcqDW25TaOyalQWwLeyTvZRuqamNlVCIaq7uh3ACTA2QIvA1RRszE+qJEJmZ9YUBsf72VIIuppI7hQNtE8Jfp0um9rooBa5VTVpCeBoghgN+qjdxvqqd/VBM21lBWiAfVUSYUtJV0HZUTYHbsqTa/aVjF+6y3QY9tFY3koPOu6t59VAGk7FQCZPlUaeFAbEndUBvH0VGhAWI1i3lUaWQUx9IUbbf/AHqmOnW+qnpdBd9dVHaaLLTtYKH5Z2QS5CDWBoqZ8IEC0aHVNiBfyn4QfMoJJtaURHaQq2ASd9UGqmsoq662lDE/RDGp0TvpKATpunca7pYwFBfUbIBBMnusib+NlDf6KAbdwgo7KD8ktMDtCsQwDdAd37obRZR1wCNlbz3QNbSpPjTRIuB31VBQBpGiHY+IQGb6IIg/ogExffZBEkKfaAqJjsgQoNfVUjudrpq4+NEBs9rXUFzPlUfKYU3I2QBebKmzrI24OyjvmHcqCiO9oUglnjVVHedNlQm1vsg0PpAQyAAFBqT2CAY02Rtv7U3A0sq2wNrIJqVlfayg7+VCbwEF1umxGiAfDdG2uYQQWAsqIi32QaHZNGk6FAB1AG6g1P5IdDA0QTvCA+9tD+iG36I7Yo75ZPdAFh2ug+UgbK6jzompAMRCARY/kpbU/RX1myhNwRCCaaaFXedtUi/iFk75dfCCXM23U2k6Kk2P2QfKQgNmSUVGlkQYuuNVje3gKu0UF59FEVxsLXV2J76KC4VO47aoAs3TfVIuZQCR6oDYeqCSZnygEAlUgRGyhMiECOwvKsy76Qg2QxII0RV/GnZSbwguiB1J2TvIQGVR+qCfzViTbZQ6eFe40sgm91kbArE2uqUEFxBMqj5Z3UFwfKu36KqC9lTsN9VN/VN0QN1Lk/kFSYEBNBPZAMFotqgiJTVogJo3TVFDree6W33CazJ8FDH5WRAGb/ZQDvoqYEdgmttggCwNtU2N9Ckd9AoYDCdgUFNtAEEie6sefRTXQoAsUf5QauQayUEGg9VdBpsUOsfyQkHdA9dtEMgJ66xdH2bYalAFiCgG6jjf0VPZBBPTPbVZaRtIS2ihOnhAOpA0hDafCbeguoLlBkND5WNwNUJKoAIKggJCyPzzvCxtMLIoIR8URNkMzc7yl5Map/YqDjZTwqex3TuUBvzEqNn+Sd49FdAICBeBCmgJ7hUi/hGiY/JFVS4F/qguROkobmN0BtioNZVPYfVXxuiITAhDsUNwFCZQV2/aEm3TtohPxIdfCCwIHhBYo7QjSyngdpQLxPlQ66+iuybnsiqlyO0KA/or4hEY7W3VF5I0TUKbW0BRWTflARNiiI/M6gd0sGndIuAO6ukjUqC/3hDNoUdorre6AJgeCpYE2lCY0KvcjXYIDyenW6G5ChsbCSgnfvCKHTdXePyQ/Mk3QUm9rKIZlCD0+qAbC0BI9UPbZBf0VDUQr5Umyp7KIh0Hqju6pmxiYUIVUibaKi5Gg0U+aCbFXayAY13QazOiHuNEAJJGgRAmDayh2KrtTKQNI0RR1gB3RwBkdwg8x2R318oEidNTKT+EbbqXDh4CNku8bILuUB3RtyT3UBEoHZDr4lCNtoR2x3QZaTKjdBNghOsXQTMIGnT6IYiP0UNiPVURqZjRBSVDoLaJ+L+xU6gd0RidfJV1sFAIOkqt1k6hFBcWTUBBAkIdkFH6qTqne10Moh63U795VPywSoT8UIoFZ1FtUaICNA00uog3UeSodR5VPa0oB8QtqqoLmZCBRtjcaqgQAgXnuJQ6/moZJmFXH6ndEQbnuVZsFG6eiFFXbwhkR3SYm6m4kqCym0DVHaWF9bpoCFdIN1n6ILOP5IwWsLJcwUDZBvtIVFzY6/koPRFN42Q7eE7nsh07ygaiNyq6IkalTSSUFzMW2QBp5UdMq+dbo/5rBETxCyN1LbXlCTOsaop/JLRF4QxcRurrP3QQQieqIjG32Teb3Tugv2WQPnsqPlgKet+ytukA7qqnk/RUXM+Qh01vCbC6BYnXVQWP1VFze6l4BRAWN1Rr+SOsodAiqdUMT6JOp0VFxrElBPwj1QAAeiosPVRv3ugGxvsh7lCh1klULayb6J+IodQEmXCdNED8OiswT2QdzskWQBHTBtuoN/JVF7nRJG6BqfojYH2lZR8OqwFzKCizUPyAzp3UM66XVdYxOqA7coNo7J2tun4T3QPTymgQaXSfincohGklTsreJUGkwirA0lGx1KRYFNNFA1gQr+EgHwEn4vBVFhCqMTv3WRiSZ8KeI3Q3EoqbE/ZUixVdYC9gm59EEbqANUETG6jdRtAWTRcFIMbSncTdZCTdQ6wEE1ajRpPdVwGibG26IHbYQjfuU/CqNe6KxGquhG6C1/RQfNrKCgS4IdJiyoESVNpRE3hO5VE9kveEUERG2yhF4jwqLmxTv2FkEt1fyTsY3VIv3Vj7lBj/AFktp2CuyTBkd0Bth6INJ2UB+HzCrvm1v3QXaY+qmyp0iViP5oKTIIUcdtgqN1Dp5QU7DsjTAHlNSmh+sIgRAPZQ3Pk3VIlQEwUUMWhZH5isRqFloJhETaU7+AqdIQWBgaoJvZFfzKIrDRyo1jvqsXbXWXY9rqIhkvv9kda+kBBeJVn/AIIqHsdVRvGm6Ey6d08hEUSbkxCHU6JpI1U/FKCn5h9vRR1tk1ceybQqBs3RX8InUqD5SDvZW2vlSBum97IDuo0XE7qgbmNO6CNEF/ruq2Oq2iALlDa8AJo46p2HlAPymSNUmSTB9Esb2glRu6DIaR9fVYt7qyenVUWtJsgOm/dQWPiUHzR5TSTaAgHX9EbpJSJCvfwAio6QDACGJhHXuFRqiIf+CG0HsiGdN4QNB9EGkbJ/JHWbM3QPRBrfZHa+gU8HdAgzOiTeQhuYVEkeiKGJN1QLEKCOr6Kkw36aIia2hPwyRqqLaaqDS2hKQQWN91fxAKC5hWNZ1RUF7DdZ6XssfxEDRDc7oin5liZJI8rJ1o9VPXUoKNSe+ijfzQST3hW6Cd/WQgHxRYIBLom0oI6vCC9yCpG3YJJCQgNsdbxoo0Q2fVXQA7lUSLXQSdTESFCFfw32U1Md0F8+JSw3Q6j7oR27oEHpH1U/CPzVN26qbyoHZXb0Qax2RvzH1VEPzSkXVmwCnjVFZdvRY31t4VmAYN03/NET8SIDEdyqO57qKpssSLwqLgd9VdXfXdVEPcK+sKbmFSLi33QQ7+EHjQFJuUbcbzKKem5RLogxKE2gDVQXcZ9VTJPZqgCJhBqb2R0AyE102siBPnwqbX2UdodFTMRa6KCYvrCX0UGnqqYm6AJBTUdkNh3TY+qIfit6ILBBYGFYsFVQ6BBqrMm/0ChmRpdBQNZTS8+ih1gbhLn7oKIJMqCCL6qnUhTQAoEyJGkSq35ZPZTQdzNlW6kG6IDYAWR1nTKjdST6BUwfJRQW20TSPVTUg7Kn9CgEWHhBJA2JQmWxOqrdJREdCTDfKC5/OFADoirayGYBUiypugGRNkt9lCLhZHck2/3KDEf3KTZZN1KjtB5VE/F5VGkhRs2KsSSN0A/lKpgx5KjriQLKyTcIIdI83Q3Ezun6qC+p0QUASmgCDbq9VJkk6ABBlue0oI1i4/JSfimNdFSDPjdBiTN9AEA/JUxrqNktugsfoob+Are6kTHaERB2um+uiaSO4VaBKKC5kBNQknTQEJ3/AFQHHQQqPOqxHylJ3QVsERMysXeklZNt5Q/qgO+YQn5d1SYJ9FIP9qIx7SIMWWR+Xbyh2JRwiQioZ+upVm1t0MxPdRuoCC7KWDlTf7oYkoDtY0lQHU+NUdd1vVG6GUDaNFbzEQgJt5UNz50QWbymhmUFm9QUB+IW3QV1iob7XhUkk3QWQDEdyUb2ukEiR9k3vqgaQERqIjFouQfqkmPJCDT1QxPoPuoB1WR0+qx7zsqdewRUIsqNDdD8I27J09Pn+aIgs4TYBXW6HWQjbzdBTsNYWJtY/RZTcKH8oRUABCyGhMqWnwg0BVRRbRNvB/RBe14Ud2nwgp3UPjRXYJPxeEVHWhR0XH3WXedJTUa2RC8T30Ubqq0XKjQT+aCwJE9ykKN2lWUUIgRpdS5JsqdY8IBG6IAAAmNlAD0/VLEeFT8tgig0B7J5QReIKTaFBBYiyp+U90On1VNwOxVRDsT3Qn4JkofRB8hHZFAPhiShNtUiG+TZQxsiAv8AVUGNN9So3SUaLayQgvcbQrpcnRQDt2R2oi/ZABPqqRAiFDDY8BG3JJCANCoLiBvqrqbaKaH1KKp1mUufqgvHrZPxTNkQJiBqEGgJUOttArt9tUAaQSZ1QwbjWEGttCo3X8kUOqpnqN9Ei4mFL9X5IjI6qH5fzWRHw2KxmG66oIbCSjflHhHXAA7KyBdFP1Uv1QNtVRtKAxPcqIXnTRV3Yd1J+8fmj5jyVVSJiFYMlDEjSyHvrZE2mojWAqP01UHqmjUFib77JqTqpv8AohET4RV37bKNH6qmC6/1U2+qIyGsxooDczoh3UkxCCiYg7qReZ8oJJMi6bH7KKu5MyroI7lBaZUPy9yNVUAbSBFoCnnxcqnTsNUmR+gQBpF9EQdkRdsSLfVALk3Jm6HWFO4CiLB7zsg0AGygNyLqiNBpKC/iKHeNN0NjPlAfhnubILq3pja6DRQa7hPH3VAG5I3Q6C+6moEjVZOue6gg9CLqmY7BQmDbYqvEQNlQZYG2oWJ76rI6myl4J7oAvP2QXOig+EnssjqoJc+oumpAUO1ysu1t1Rj+EnvusmD9VBpCo0KKNMNv3Q6lLSN4TWYREvLvXZUg/wA0bBBVdpP2QQ6CPVNnAKHS30QaeEVk0fEWoJ12UHdGz0/oEQvp5S0gTpuoBdJ3QNSDCon6J+ab66oEk+kqXLJ3V/CE2QNbI3fspTmSdlRFwNEUaDITcW0VNjbsh7zHdEQzrHhDPVM7KdgENpQGjbZBc+EGl99UFgVBZPUe2iH9UGkIbEAaKhopN99VTqfO6l9APRBRKN1QeVBa8+qC/wByjRa9im35INTKBIsAjtih0BhQkW3QXRp+5UJMTF4R3/HyqR4UFAMoYI1U1sO0KaGToFVWfumrpjRRvf6BZD+aCEE69kd4Cp7/AEU0OvlEDAPdSLBvdANB5VkTaEA637XUgnUKt7n7IdRexUE/msvwkqN2jSFbaKjE3t2CC9yjZHi35qizbblFSCL+LlU6GN0Fmz4QaQiJv3hUgktsg1I7p/ZCA7TdG6yTumpHjRXQDyUVNp3RB8snuiDAkyN1YukJvF1EQ6q7QR6o7Qff6I6xQV3y+Qmx8JOp+yhmfAVVRrobqfM5W5gqN1kILqJ0RxiI9EMkQNCo6+sWKA4CQNL/AHWWg+qh16vKyk2gboJPfsl5n8ksJnuoLCdD5QCATBTQnwgIkHyl5QQakbjRZO11UmDpA3ViXXG6BtA3TUA9hdJv6bJqLIA2Kee6hH2VAJv2QG63KO7Ge6CJiBCQZnXZBN1b9JA30lAYA3KG5REvMKt1LVGayReFRYCPRFTzdW1o2QTI/RNzoiHp9JQERPlHaA6FDYX7oqW6GjfdWLxqhGohUiSboMWXMoJkndUa/RBYeqgpu60hQ3Fu6A2J30QT0xoFRLQFT8qDuQhBi6A2zj6IzQ9yggmD9UaTr9kAafVDoDO6HUCEcgjjEXuqL3KHQWuhiNUAzfukQJQbkX1hJ20QGnXwm/qUEh0d01ntKAdNVI0srsPF1Ha2URdr7XQfyU2J2VBh11VR2nZVRusHX9ArvogHU+E0+ympVN7AbIg4bD0U6gPtssjYz2UAGv1RUbeCZUBkTO6yEx+SjbgiZi8oKNT9wg2+6hPxKgII07ToU1Ouqu5CgQBtdJ++yOiYn1VHZQP6qTeVG+LKxdUN9VCLydFR8xteEt0oJ2/VZSImNAoJN9VNr3lEUTM2hFNT/fREVNGhUa6qSAUBjqP0URIVcblB8x7q66KiHdIuPRD8pJ20CsSfCKAHq8IB27qzv2Kg+ZRDzvGihtEKiSYS35IpoSqBAnugEC26s6mVUQ3PjRH6eVAZtFlbSZQSP0Qi8BB5V1J2UUgEx3lXZR3ZX1CqMdAht9UNhH9ymwUVZ27qCdFY0JupNoRFA+JCT9ypuqb30CCGZgd08A6qixF1CLk97Ipr9k10CsSLIYi26qLofzKgiZTayeg3QWNt1Dqe+ybpoZ2QCrPjdT8jKDQboINTKh8+vosjqT3Ch1vooB86qukABCDvcoZgKg7WEP5K2ifChm25CCARb7qjRCAD+qbwopF437oYIJCEzeYV29AqiaDvdD8oJ7qaR+qG4iVBb3U7/ZUWb9IQgWCAI6h4Q/kgse8ogC2uihtbSyHYbAoe+5QDoPKoG/3VGuumia2VVBJdYabpYlQnYWVb2UQiCp+KyuriUtM+FVHaT32Q950UOhKrvVEBc+IUExGirNQmwlAMSYMblNdEAn6IR422RUOo/vKycIMBD8oM3KmgCImo03VO39ifhIAVOk9lBiNFlefzKxbppH1V/KdVVBrN7obE23srufBTsY23RE7fRCJBEwE/CSd1b7d0VBBPoinka7lEE9TopF1fJTfVRFbpPdJt/YoNgUibHRVVMzYJ+dip53hT6wojIXtohsPJKm3qnZFUTIhVzSGyYHrZab5mcU5hjsTiciweLxbxiKjKeDw+W9VPEYmS0mI+OGgGXgtDdTYELQ2M5N858aMcWcI4j3GIxbsVTZWzel1teZHxA1DNje9yF0xwl81jLLXs7svr0Qek1qMgmR7wW/NeHXzbLMNTLsRmOCohvzdddgi8d+8BdI8P7PfODFYPFYfF8LNaax96an70w7He8EwSZJIuZaIBtdYVPZ55z0a1I5fw9To+6pupU6lTOKBc1uoggiNXWvc+i19LH/cnXfh3RPGHDQxGGoMzWlVOKY19F1FrqjHtdPTDmgi8WGq8jFcS5BhWGpi83wlBoqe7PvX9EHyDoJ3Nl0aZ7NHOehR68PluEpumDTZnFNp9RBiPUz4WbfZj5x1qb6tXJsA94vD80pOc/wBNfzI0SceP+4ud+HdirxtwbSrPo1OLMhZUY3qc1+YUmwIBm7uxB+q8mrxPw1RewVuIsmpmo4Nph+OpDqJ2HxXK6Ou9lzm77sO/cWVEdv3lSkfyX5/82Hm4P/ubKRbQ5pSWvpYf7mevL4d43cW8KNMO4nyMXi+Y0dYJj5uwJ+izbxPw4+vToM4gyh9Wo7pYxuOpFzjEwB1XMLowPZd5tVS1rsoyWmHRJfmdKB6wD+S87BeyhzQFem7r4dw5kAvGNnpmZNmSf96l48P9y9eXw7ps4w4SqVnsbxTkRfTe6m5v7xoy141aR1ajsrT4w4QqNBp8WZC8E9I6cyomT2+ZdMcb7JvM3D1i2g7hzGMJMVP2wsJE6kOZN9V+LvZU5oOpyWcMtdB+F2YX9P8AN7p0cc/1HVn8O7b+I+H2hpdn2UgO0nHUoMa/iWX7+yOY/feWS42/yyne3+kuiZ9lrmv7xrBleQvB/EMzpw3/AFZ/JeYPZV5pMd0DC8OG09QzIR6fJMpOPC/6jqy+HeZma5VU6BSzTAPNQOLA3EsPUBrF7wY9FaGZ5diC9mHzDB1nU3BrxTxDHFruxg2PhdFX+y1zX6gwYLh9sbjM2gD/AFF6nO/Zw5s5HlGIzStw7hatHDtNSq3B46nVq9IuXBggujxJ7BPp4W9sjry+H0LAM3kXvKrj8IC6dexzzfz1vF2E5f8AEOaV8xyzH0nNy1+IcalTD1mt6gwPNzTc0OEGYMRAK7izI+krnnhcLprHLqmxusQhN0BiLL8cd+1HB1v2E0Rieg+5NYE0+rbqi8eiw2/c6kwvwxuJw+Dw9TE4vEUqFCm2X1Krw1rR3JNlxSjj+YvS818n4coNpz1VH418EDV0AGB6rwuXnEub8ZYnMaWZ4HLauU0mdBLKRLXvJsPiJ6gQCbjsuP18bZjrvXT6d1v4c3weLwmMpe8wmKoYhn9KlUDx+S8iNzdak5VYDD5fzW4qwmFotpYei17KTGizW+9Fgtn51i8VgspxOKwmFZiq1GmajaL6vuw+LkdUGLSnDy9eHVU5MOnLUeWRaYmV4uLx+BwdSmzF4zDYd9Sfdtq1WsL41iTfZcYwPGdbPuB8dnuSYWnha+Dk1KeNBdTIa3qcGuaRNjY7HUL02JzGhxtywzXNc1yTD06uEpVhQJ+OHtYD1sJEtvaPCmfPjr7fjbWPFff9mx6TmPph9N7XtOjmukH6hfpq6dlwTkU0Dl3hYAE4mvP/AG04q4qzLGZziOEuEcM+tmjGTXxnvAynhYibkGTcA+sXKs5p9OZ33S8d6rjPZzqo4Ma57iGtAkk2gd/svFwOYYDHtDsFjsJiRr/BrNfb6FcLyvi3N8nzfA8Ncb4Nja+LHTh8xpPDqVckxDhAgyQPqJF5XH3ZdgMu9oPCUMBhKOGpmh70sps6W9ZpPkwNNFjL1Hiz51flZxedtvbeEB82SLDsLLws/wAfUyvLKmOZluLzE0yJo4UA1IOpAJEx2F16d6m65SbecGuN4J8wvxxmIw+CoPxGLr0sNRYJfUqvDGtHklap4mzXL80xQzd2X8c5OXNbTqPogUqdSLNs50A7WXt+HcfjMJg6eVs4S4nzPBYmrNWtmb6dSGugaXBaNY9V5v4mXLUdbxWTdc7wWNweNZ14LF4fEs/pUqrXgfYrypB2WqeWeAw2A5r8UYbCUGUaNFj2U2MEBo96LBc44q4nwHDnuH5lh8e6lWkCrQwzqrGkbOI0J27rXFzbw6suyZ8estR70/nK/LEVqWGw9TE4mo2jRpgvfUeelrQNyTYBcNZzNyWtWr0cJlWeYqrQaalRjMJBa0auIJloHlcO4wzulmVLL+J8ir5tgDjMwOEr0auImnUDWtMhklsEGCND2WeT1OEm8btceHK3V7NwYHG4LHU+vBYzDYloEk0qrX/oV+8X/Rau4LwWFy/nfn+FwWHp4fDswp6KdNvS1s+7JgepK2kbk99l04eS547rOeMxvZBp9VTZ0eVDqFQTJsurABNp3Q7lACP5oTAQPSJ7JPYABLhQCw/JEPTsrpeb7puoII73VVBob3KrtBEQU1KuwQWLRYhYn8I0Twmx3RFbqjYJ1Qm3ooO++yKrbmfCWkxqdVNGx5KCJgbCEGRUcbFZbX3WGgQUREoN+yaN1QDbeECLOS5eQlh6qG5vruiMhBJS3rZSb2TSTsikbnfRHSBc+E0CpHwiURNAADPdE1FvVEVhESe6oifEp8xT8VvzUQbtKC8fohIndBMx4RVJ+Lwsba6qxOyHVEUdzquNc0szxGSctuIc2wxpithcBUqMNSOmQIvJFr91yUC0Lg3P6nUrck+MG0S4VBlVVzS3UFsO/krj3pfDSXs/8Q4jifjLiniDHOpVM1ocOuIxFN5JZL+kdPq1gMydVs3JsjyJnAuC4kz3PM5oe+oh1Qsxroc4kgBrbkkxotQeyXg6wxnHNSvUrPdSyBlKkegNpGm59V0tjX4g695g32G4ctpB2G5dsxXQcH7iq6mH/IcR0/w5+q8frZJy95vt/mO/p79j8adPhxvu6mY0uN8vwVV0MxeJrOFMzuYuAuVO5e5HVa1zcxzuo1wBBGYOIPYiy4hgc4weAyzNKee47OcVn2JpVcNWy2sHOpve4/C5oiABaCPpsvOyTMM3zLhKhl78WcgyXK8N0ZpmmIcGOPRPUxpPygCxP/A+biuGX22btds+qd96eNn+VcH5bjf3bgDn+c5roMJhMc5xaf67ohq9HnuBybhXCjM+P+MMNwnhHiaWCGNdXxLx4uST6NK9NhuMeJuM34vh7kPllDJeH8MSzMeMszZDXR8xpdQuYvJBPhguuF5TQ4Dyziirg+C+HMz538fdU4rOMxcX4DDvn5i50tgHeT4cvZh+Hze8/wCkcL6q+MXOeH+aeX1q7X8qeWPGXGNZtm5jjHvoYe9pDnSIv2C83injD2kcFw/mGfVeCOC8kwWBw1TFVW4jGur1hTY0uMBr4JgHsuP8X1uNcNQY/mxz4ybgPDFktyThtgFZrdmgj4z9JC4zypr5Rimc5aPDmcZ7neQVOFC7DY3NDUNWq5tN/WSXAficY0tC9+HHhjNYx5sssre9c4zfmzzJxPCXKirw1R4efnnGdOt79uMoOFD3jQC0Nh0sGvfZe9PF/tDZRSLs75S5FnmGgh5yfNOlzhvDXOJP2WvuHfjo+zE1oiDiD9mhcWp5nwyzmtx4eJeaXFnAGb1OIcScuq4b3owz6PUbvbEajuBELXRJ7J1Vz6rzK5WY3MP3bxZl3FXLfNnGCzMKTzQn1vbzDQuVYHhmjSwjc1pUKXGGR1Pibjsox7uto/0Wkgx2H3XGaTubL8lNWjjuDOe3CkfxKJbSbjA3xqOqNviPhce4Ny3hnMOIK2I5KcUZjy041Y7/ACnhTOupuHxDhqwNdIP+t6N1Xj5PQcXJdztXfD1OePby3rw3wny9z7DmvllTG1HN/wA5SfjHtqUz/Waf10U4p4S4C4fy39uzJuYtY5wZTZTxb3VKjzo1o3K17k3HWGznixnDPG+Xv5dcyKRihiAYweYnYsfoeraSZ0Bd8q5Xnue5iOIshqcQZVUGNyTEPqYmlSb1NrMLQBWYN4iY/Tbxc2E4p054z9/Z348ryXeOVeHSwHBTa9MZxkPFWSUazumnicVWeKd9JImFyGnkOC4Z5h8MUcrr4x1HGtriqKuINQOAZb6X/Revo1sBisyzXEZfi80xmQVMurvzN2YFxp+9MlgZ1gQ6YiNFnlNTEtx3LEYsP98aFYHq1jp+H/VhYwmMvieZ/eN5W33/APadTeTzKVH2rsnoYVgFFnEuJZTbT0DA6sBHgAfZfQdv+aHovnly3r1cL7W2XPYwU3/4X16Za4j4Q6vVaR9iV9DQCGBfa5+9j53FPK2jVQmN/oqDBHgLwM8yvD5xl78uxVTEMovI957isabnD+iSLwdxuuFt12dZ+rgvGuc43ivGVOD+FHB9MnpzLHj/ADVJm7A4a+Y10G5XNOF8mwXDuSUMrwLSKdMS57vmqOOrz5P5WGy4fzMw2M4U4ZwuM4XzCplOHw9VtF2Fw7GCm/qn4zIJLrAX1C8zKcm4vzDKMFjTx/i6RxNCnVLBl9I9PUAYnfVePG2ct3N5f4d8pvCauo8Dl5Qe7mxxnXAPQx/uydupz5A+wXuObea1MFw7+6cAHVMzzc/suFpU7uINnuH0t9V6LlHjc6xfFHEdHMM3r46lhKgpDra0B7+tzeuwsYYub4PIMMziTFZ/ia1TF42qBSoGoB04WlHyMA73JOplXily4unH3tM7057vtpqRue0aHLXDcF5Vha7M7r4o4XF4ZzYf1T1OPo6zR4B7LluS47KMbybzDB5W9zX4PLqtPE0qgAqMqFpLi4eTJB/sXsuGeGMS7izHcYZ9QpUcfXcaeEwzHBww9IDpBLhYvIGu0n6eFxZwnTwOIz/iXBYo0KWIyrENxOFay1SoW/NOgFpjv6rljx8mE6r8a/l8t3PHK6/n/N5PI9vRy8wsa/tFf/vrj2K/eHAHHWbcQYjLcRjsjzIFz69AAuoEu6viB0gyL2IIvNl7flHVxo5WMfl1CjXxYq4g0adaoWMe7rsC4aLwc+x/H/EGTY/In8DDDftFM0X1jix0tncE2KdvpYedyduyf/pl8PAx1THczuJcoxGAyvFYLIsBU94/F4hoaah6gSGxqfhAAE7kwnFOMdl3PSjj2YHE46pTwjYoYZvVUeTTeLD6/Ze34MynmNlWQ4fJ6Y4fwFCh1dNSsX16h6nFxs0xuvU4Ojj8Jz3wVLNMwbj8UcN1OrMoCkINJ8ANBNgsZS9Mt3u2brcs3ZPElbC4TzvHZ1h8RUx+QYzKHUnBrRiDapPawNt7br3JMmCbTqqTMBQC8n1X0pLrVu3jtm+zTfDNHKuJONs/HHFVtbF4esWYXC4usWU6bA5wPSCQJADfvN5XtuWFRmF4+zzKMixD6/D1Fhcwe8L6dJ8tjpJ8l48geF5XOnDUsJgaGeHJcjx1Nrm0q37XQc6qSflIc1wsIiCs+HqPHDMkwr8mwfB2CwmIpsrMpspVWQHAG8amCvn443Dl6fed/wBa9VvVhv5elynKcZm/M3imhg86xeUlrnGpVwwBc4F4AbJ072Ww8twv+DXDj/3lm+Kx9PCtfVqYnEn4+gXj0GgXDOVGY5pjeMeJGY/C5ZSfTeP2mphaTgalUPLdST8MNcYt3XL+LcjxPELsJgKuKZRycP8AeY2m2fe1yD8NOdA3c72C6+nxnRcsfO7/AHZ5cvukvjs1fgn4nA8CcR8XYtpZj+I6pw+EYfm6HuOnqJ+jQvBz2lnGW8M8PZLmfD78tp4XGyK76zXGu8mXfCNNfyWyGZPiOIOLqOOxuCdhMkyN5p5fhns6ff1W2NXp2YIAb3gL03PoH9h4fcP/AEjH+qFw5OGzjuW/Hb9+/d0w5N5yP24eEc9uIfOF/lSWxWm8g+q1tw4T/j64hBuP2T+VJbKHbuvX6a7l/euHL5n7QEC5Pj6podPomwHe6TK9DkDUkpeAhsSQguUQMRrYog0J3TU+ZRUAmRqYVFgTZBr2Q7wqIFTFpTQWQmAT9Egmo+iTrF1TpZNygg83ur+qdpUAJ9UFOo8KC7gQLaKgjX7J2QWLzKAAiNLorMBBg029JV7d0FgYTS9zsFEQ/fZIhD+QQibbKqyIvqodh2QkwSNk2ugG6riIlTwPVCLXKIN0geqI2UQSSXaWCm4hJ2+6dp1UA/MVW7GVPO6u9tAgemqfihJ0ukElAaDMH6rgPPnNsPl/K3P6b3F9SvhPcjDsqMbUrCpUbT6W9UgdRd0zG/dc+brErVPtQ0qdDlNnOcCiyriMNhvdU2ODYcKlWn1XIMkAWF73gmE1dzR7NV+zX7rD8T8xMLhX9VKhkNINLarXAianTYD4CBLem+hJu5b5yDJMDn3LHJsvxzHOYcJTcx9M9L6bxMOadiusHsU1B+y8xHtJdOTU3B7nS516o/s9SJXY2jmmIwvLvhzJcqdGaZrhmUaBB/zbSPjqfQHX+xcfVXGctmXw6cMtw3Pl6jDYjNjmeYsxPGNf/BrJGF+OzSoxlNwa0S5gqASY3cD/ACnR+dcc4LmnzAyHL+L35pwryoxNd9PKG+5NGjmtam4Ae+q6NBJ8huliS8c248w+H484vbygyjHHAcEcLMGO4xzEP6RWe34vcl30M+QT/wDZhcczbmZlvEmXuwHGXBDMLyVzPEfunJswpUOipgX0h0srg3IGu1gCPih4Pb0vp/pY7vm/8OfNy9d1PC8081wjOZGI4A5mY2twTy3yjBHEZVleT0nCnnFNhHS01GiZN5ZFiCNfiP75jxtzCyTgehxfwRwZlnAvLjKMVRq08vrhjMbnFIvAdYiYLZP9I6hzoX45txHjuVuIwPAnMjhenzGo4T/KuBcwDG1K1Z0hjKTwZNpaNHaCA4dJb+/F9DBZXisFxhz+xVTifivFw7I+B8vPVRw82aHMBMmbEmQTb+IbD1Sb8uLPOeFs4wfOjF8dcveXGV8dZZxfltLMcFWx7We4wNd5Be8vdYE69IIJ6vC95n+H51Y7J8XlvGHMrlrwVl+LoPoVsDRpscRTc0tc2XxFiRYrz8DwXzj5k4KnU4s4gHLjhwtAoZDkVMNxIpbNqPt022v/AKI0XI8i9m/lHlg6sTw0/OcR+LEZpi6ld7j3IkN/JYuUx8ta211mvD2Qv4Z5eZdwzzw4Ny7OuDaNanRxj303tqvqQAQ0vIECRedV7v3XPd+Ac/E4fltzWykN+NjAxlV7fBgMn7rY7uS3KWrR9w7l9w/0eMNB+4Mri+b+zZwK2ucdwdjs94MzFvxU62VY5/Q0+WONx4Dgr1406a1Rw83MuVXL/irjH9yUeE+MONc4/dmRZW5raTcvpB5JdDvhDWy49RtZh0K87mHjadarg+HfaL4cp4arUAblHHuQt+GdWlxaLd4iN+kfMvb8c4nj7gzKn5Vzi4bwPM7gOYfnGGw4GMwbdOt7bEED8Vv9PZeroB3BfCAzbh3Ff4y+SOYjox+WYr+LicoaTctmCA2ZIMQdemz1raMODcTh+YXKDiRvNuuMx4NyKq+nkXGGJp+4x9UhxaCxpkvdYbnqJ6SHG49nyA5l5pjMHlfAvHFfMsDiMfRc7hLiHF0/dVcXSDulrHkky4wIueoGDJ6S71rquXcZ5HS5k8f0W5Dyl4dPuuHOHKMTj3sJYwva0wSSC2PUWaHOd5FfPcdzca7gDmRw9T4RxWd0BmvAWNazpOH6RDaXUNXEAEixIJED4FnLCZSykysu427kWCxnEub4vJ+MM4xdWtl1QOdlsNZSrN2eS2Ops/qO69lxpTDOYvBHQwBra1doAGg6WwPC1jy34qz7ibIMS/NqRw/MfgWr+y5tSOuNoCR7yN+oAyfUj5gtj5pmGHznirgHNcK7+DiH1ntBOh6BLT5BkfRfIuF47cL53O/zNvdMur7p47/2dOeFW0R7X+HfUqNcz/DWoQ6bH/KHx+cL6DkGL67r54YAge1hT6Q+sP8ADYwKZkn/ACs6f32K+iDzcmd/uvrc/s8XH7oLgo0TJgXV8boRAXCOjjXM3JsZn3CGIy/L2034o1ab2Ne8NB6XXudLSvXZdwxxhhcHQw7OO3U6VGm1jWNy2mQ0AQACTJjyuaka/ZP7Vzy4scsuqtzOyacV4G4Oq8M4zH4k51Uxzcaeuqx2Haz+JJPXIJO5tpdcp0iNFSbg6JE2WscMcJrFMsrld1QZheu4iwlTMMgzDAUgPeYjDVaTJMDqc0gfmvYDvdBB+gVs6pqpLq7cd5cZHiOHuDsDlmL6P2pnVUrBjpAc5xJAO8SAuRTdX8IKg1PZTHGYSSLbcrujtfK4dV4ZxdXmvT4md7sYKll4pt+L4zV+JsR2gzK5lbqO6kX1/wB6mfHM9bMcrj4WLGQoR5/JD/NDrA7LbLjPMvJsZxDwfi8swApnFPfTfSD39IJa4EidrSvByvhvjTB5bhsK3jTDUW0aTabWNytj+kAAR1E3juuZtEH6rLUD+a5Xhxyy6r5dJyWY9LiHA/COM4czLMcXWzoY/wDbz7ys39lFMl/UT1TJtc28rlx1toEjrM99UFj5WsMJhNRnLK5XdZFxI09Vxrjrhk8TUcspHEigzB45uIfLSS9gF2jsfK5GTNkkRfZXPGZzppjbjdxxPJ+HMXheZGd8R1vdjDYvD06dCHS4mG9cjaOkesrlhModPzTSFMMJhNQyyuXkB8ILEfqh+VRx+ICVtldpTQ2EIdUPrZFG3S8W2KCw7JFoRADwnePVNig0QDBdYqCIjaVReIAhHDwiqD4spoO6eRvcKjYTFk8okEnTsgMjwo3cesI3XTZBR81gqLulQTB8lU7KqTvtFlDoPzV2E9lDrrZEXvpdTxoEJmYiFRr9EEFyPqhEyUbYedFXaHugxJJGh3V0iykAH0FlQdBEoAGgU1Z+ipj1TYIKNkU0A9ETasdR9UHywhsE0b63UQ2uqNeyh1+qu0wgg+WVRAncwgKkWOl0FZ57LVXtU5lUyjk/jMcwubFelSe9gBLWvd0mxBBsdDqNwYI2qFqf2ugD7PfEpNNryz9ncJbPTFenfx6q4zdkL2jSfsfE4ipzMxdKo51F+U0p+HpaXTVMtabgdhsthYrit3BnK7OOYmMaHYjLsEzKskpOvNYiAQP9IyfActZexJSdVqcfmnTe8nJGsaGg/Eep9gNz+a2LzEyduc8f8ouVb2A4bDl2f5uw2BFMS0OHl3WL91jn4Or1Mt8SNcfJrhs964l/g3mWE4W4U5HYGvUZxNxq/wDffGGOBmpSw5PU5rj3gR5LT/TXn4rMuEuIeO8xzPHPw9Hlnymwwp4HAMe0jHYxvwh3T+IdTQ0HQkN/pOX48P8AG5yxnNbn/VwzMZiKuZMyPIKVUnpfTpva0NEXg/CTH9Epw3kfLXmdzIZkHFXK/N+BuMsM0ZhjMPhnAYPFUmlrj7wCwY6dekEz8xK9cvy4aflQznH8N4Qc6uMMu/evMTi5/wCy8HZGQXjA0HWp9LdRZwJOp6gLF7iNtckOUx4ZxVbjPjPEjPePcy/iYzHViHjCyP8ANUdmgCxcO0CG2XHOTWFZzN5x8Qc2ccwPyjJarsm4XpEfAxrBFSsBsTNj/XPYLfoEenhYzy12jWM33R9SlRpPr1qjKdKm0ue95DWtAEkknQBdXOcftV4fAYytlHLjBYbMHUiWPzXFtJoSLfwaYILx/WcQDsCLrx/bn5mYjBsw3LXKa5pjF0W4rN3sME0if4VH0cQXO7gNG5XU2s6kymOl8kCXOMW7wRsunFxyzdY5M7LqNgZnz05u5liBUrcdZtSl8tp4PooNBJ0AY0EjsLrud7N+W8yMJwQ7G8yc8xWOxuPc2thsHimtNbBUunR7gAS50glpnpiNSVrL2VeQbMnZg+PeNcKx+Zua2tleXvEjCAiW1qg0NUj5W/gmfm07OaHRZ5c5+WNYY3zWD6bXsLHsa5jgWuBEgjsQdQuvHMPhPHckc+r8yeAcGcRwninBvE3DovSFM2NWk02AE6fhn+gSB2LneLQvyxVGlicPVwuJosrUarHU6lKo2Wva4QWkbggkFcscumt5Tbq4WcL8IZlhsva4ZhyX5mN6aIJ+HKMa8W6SfkEx5aW/1L+uwPD+aZ7wpxHyYxuZtrcacvq4zPhPMqdQe8rUGw5rAQbESGlu3UyflXt+FeCsvwnFHGfs58SPxDuH8yaM84ZrNINWg3q6nNpl0jqaR6Hpf/SK9LwtzB4R5eYV2bcteVOP/ceDzClgs74mzd3+UDqqNa9ouXB15iQAYlt121a5vNxHGlNtTgX2h8DRFEYh44f40w7GwJ+Uvc3wRI9KYW0MNhn5RzQyjJKbg7AU8e/GYFwMj3VZk9I8AtK4DU4WwzOOubPKQBhyzirK/wDCLJWj5W1tT0f9cDTZq5DyOzLEcZ8vuWfEbm1KmNyvEPyrHkCSPdNc1pd9Gtuf6S8nrOLqxxynmWf0d/T56tl946w06XvfapFB1Wm1p43u/q+H/wAdnUL6NkdRd5JXzbzmnQw/tL4sMYX0KfGUw0kSP2wEwfVfSUiC4/1j+q9PNPDjx+4PmELg/NvjrNOBMuw+YYLgfOeJ8M5tR+KqZc5v+SNZBl4MmCCTIFukyubgwo0/E0dyFyxsdNOrj/bFyPbgTOCD2x9G/wCS5DlvtH5vmmXUcxyvkrxtjsJWb1Uq+HaKlN4mJa4MIIkHRdL+JKbKXEubUqbAymzMMQ1rQIDQKrgAF9BvZYn/AJvfBtz/AOIu3/8AWvXfkxxxm5HLDK26cFzT2k80yjBuxub8meNMvwrfmr4mKdNvq4sgfVefyt9pXKOO+PMt4TocJ5hgKuPNQMr1cXTe1pZTc+4Am/TC3rWayrRfRrNFSk9pa9jx1Nc02IINiPC6gVOX9Llv7Z/CIyuj7jI85xNTE4Bg+WlNKo2rRHhriCP6rmjZYw6LLNd1y6pWzfat5x5vy2weUZTw1SwwzbNG1KxxOIpe8bQpMIb8LNHPLjvYAGxlcL9mHn7xbxZx9R4N4xdhcecfSquwmMo4dtGpTqMaXljw34XNLQ6DAIIGsra/Pvk5lvNfKcA2rmNTKs1y4vOExbaXvG9L46qb2SJaSAZBBBHqFxvkJ7POB5ccRHifNc7Gc5tTpPpYQUcOaVHDh4hzrklzyLbAAm15SXDo7+Vsy6m9AdPUKnUH8lHQ0ajVQuAi4K4ujI/MY7ITKwkE2KykCxI9E2B9VkPEDZYPIG8law4057cBcGcR4jIuIv35g8ZRNicqqmnVH9Km/R7dpFlZLb2S2Ty2iNApqTdcA5dc3uEeP8z/AGDhulnleGPc7EVcrq08O3p1BqkdIdewmV5PM/mdw1y5bhavEtLN2UMSD04jC5dUr0WkGOlz22a47A3Ktxu9G45uw6zqdEdrIWnMm9pLlrnGMZgcpHEmPxL/AJaWHyStUfExMNkxfVbkFyB+qXGzySy+GJ1MIZDI8LVXF3P7l9wpneJyfPv3/gsVh6j2H3mT1gyp0mC5jiAHN/rCy99gOaHC+L5fZlx4W5tg8ky5jqlSrjMvqUH1WgAzTY+C8EuDQRYkwlwsNxzifGiAEmPC1nyT5y8Nc1H5nRybCZjgMVl3S+rh8a1nU6m8kNe0sJBEggjUGFsxtwdfopqy6pO5qm8oZnRcI5xcWcT8HcLvznhrg08SiiypVxYGNbQGFpsE9ZaQXVBrZtxCSbui3Tm8/wBqugvddcPZj5s8ec1eYOcVc4dl+DyPLsAHjB4PDw01ajwGF1RxLjDWvOoHhdjpkQrlLjdUl3NuP8fZ7mvDvDz80yjhbMeJsQyo0HBYF7G1eggy8dWsQLC5my0I/wBr3JqNV9GvwBndKrTcWPY/GUQ5rgYIIIkEG0FdmnGGndfOT2mabKPP7jJlJoa3949ZA7upUyT9SSV04sccrqufJbO8doeXXtF4njrPaeWcP8r+IsU0VabcTiaeJpOp4VrnR1vdEAASYmTFlvt8X31hde/YLZTPKLNagYOt2eVeoxrFKlC3xnWaZdkuV4rNc2xlHB4HCUzVr4iq6GU2DUk/3nRZzkmWo3je2609zc591+WufuwGccus9qYJ9RzMHmIxNJtDFwASWSDBv8puvz5ac/8AG8f5vhsJkfK7iOpg6ldtLEZgK9N1DDAuguc6AD06kAzZcIpZXmvtOcd084x1PFZXy0ySu5mEpn4KuYVNHEHYkABx/A34R8RJHZzJ8twGTZXhcqyvCUMFgcLTFOhh6LA1lNo0AA/uVcunGa13Zm7Xq+ZXE1HgvgPOuKcRh3YlmW4V1YUWmPeOsGtnYFxAnsul+F9qbmnhc/GY4yvlOLwAqdVTLRgm06fRu1tQfGDGjiTfUFd3eK8ky7ifhrMuHs3omtgMww7sPXa10O6XDUHYixB2IC6w4X2PJ4iZ+3caivkYqS+nTwRZiqjP6HV1dDSRYuA9Atcdw13M5lvs7R5DmWHzjJMDm2FDhQx2Gp4mkHC4Y9gcJ8wV5zZDYX4YHDYfBYGjg8JSbSw+HptpUmN0YxoAaB6AAL9we5XB0Txuh/RHSCUbfQE+Qgp2PYoTAmdbqxEKRt9lQ7lB37BSpbX81R+UKCt/3ysYufKHSFSbxvCoO+nlB3KGCFd5QYkXA7rLSY9FBYTrfdDMiLwgsaH7oh76Igwdsr42Gqhv91SNeyiMZWWw7KfTS6vg7oqbbWVAlTY91e+yIA6LU3teifZ44n+NzbYeIMT/AJRTsfC2y3beFrT2pHNb7PvGDnAEfsTRcxBNVgnQ9/8AgtYfmiZeK0P/AMnzVI4o4ubFhgMMZ7fxXrnmKzIP9onmvxE5xP8Agxwe3DUT/Qe6n7wx9QVwL/k+IOfcZ/DLv2PCXnT+JUsvdZSeaf8AzhObFTlz/gySMdhm485wXCG+6/h9EbfNP0Xoyv31zx/LHB+BM54c4m4V5P8AKnK8VWrYqnxCMwz6m6g5jesF1SOoiH6kW7Lm+IzyvQzD2huY4cXV8EwZJgXz/mw1vu7Ha5afouXYMe0e7GtFKvynbXJ+HpDy4n6XWqIzQezFznGaGiM1HE/+XmgPgNT3tLr6f6vVMeFLDbsx7O+Qt4a5J8KZX7voqfu9mIrdzUq/xHT/ANr8lz+0TN16nhIMHCmUCnHR+wYcNjt7pq9kTbck/quGV7uk8PnZ7TGKqY72hOLatasafusa3DNcZ+FjKTGAWkxE6d1rPERUoNaYA06Q2zQRpM+dIt9Vsr2lcVlGZ8++KcTkmLp4rCVMSzrq0z1M962kxtWCNQHAiR2K4FijXxALuqm1vSC+GANJAiTGkTr6d175O0eW+X0L9mTid/FnJPh3MK9YVMZhsP8AsGKI195QPRJ8loY76rZRE7r5n8uuZ3HXL9lVnCufVMJh6lT3lbCPptrUHugAuLHAgGABIIOi2zT9rrjWpw3i8FU4dyducVKfTh8xoOe1lE7vNF3UHEaj4gJ1B0Xmy4Lvs7Y8s13ba9p3nthuA8JW4W4YxFOvxViGRVe34m5axw+d2xqkXa3b5jsD+vsO5tjc15R48Zhi6+Kq4bO8QBUrPL3kPYyoZcbn4nOP1XRvHV6+NxVfHYzE1cRi69V1StVquLn1HuMuc5x1JK75exdkdfJeRWX4jEUjTqZti6+YAEXNNxDKZ+rWA+hWuTCYYaTDK5ZbeF7TJHDvMDlZx7SBY/B54MtxTxq6jXAsf9f7rimYZNR/wg9oPl05gGFxmXtz7CsAs15p9biB/phv2XMfbRa1/LPIwD/G/wAJ8D7r1l64vx0zmD/zsuJHct35A3MBw1hTjTnHV7n3XWNI/FPT9JWcb9savlw7gzmfkvEXNDklj8DisQ/O8HgjkudMdh3tAD6YYz4yId8Um3dbU9lGk7Kc35m8JgRSyriqq+i3YMqgkD/UC8TC/wDOWqOaKGYcqATp7oPJ/JZey03iGnzN5rs4qqYCrnAx2C/bX4AEUDV92+eibxEa7ymU3KS946250wD2rMSKRqP/AOmoghsuP+VjZfRN+rv9L+a+e+YMqj2wnUhZ/wDhuNDH/nIPft5X0GffqjupzXwnF7sZ+KJPZWndzT/WH6oB8SypT1N7SAuE8ur5Z8VMA4szgf8AtLE/7Z6+gHsvf/V94OH/AORd/tXroDxX/wCVucR/6SxP+2euzfJzC+0W/lVkD+DMz4Mp5C7Dk4FmOpk12s63fOekiZlevlm8Xn47rJvjm3zCy3l1kOCzTMMLVxbsbmNHAYehTqBjnPqG5k7NaCT9O65Xicty/E43C4vF4HC4jE4J7nYWtVotc+g4iC5jiJaSLEhdFufmC5xM4z4axHNOvha9A4umzL3Ze5v7G13vGF4DWgQ8iCeoSQLGAu+zwPeO9SuGWHTJXaZbtdZvaA5+8fcEZzXyXAcDNyek6pUp4PNMyJrNxTWn/OUmthnYw4kiRIXDfZU5hcdcZ89x/hNxRmOZUX5Vinfs73hlBpHRBFJoDQR3iVzb2/qYPLbht8XGexPrh6i1H7ETg3npSb3ynF//AOtdcZLhvTnbZnp2U5/cPc1MXhXZ7y241xeBqYTCw/JWUWRiS0uJcx5B/iEEDpNjAuCV0+PPXnC50Hj7N2kGCDTpAg9iOjVfRo/N+i6Ue2ZyrHDPEY46yTDBmT5xVjG06bYbhsWbl0bNqXP+kHf0gpw5S9qvJPeN/wDsx1eI825d4bijiDjzE8U1M3pseylUoMY3APYXNqUwWwXOmAZA+URqta+1pxJzB4G4my7F8McyMxp/vur0YfIKOFpl9ANa1vUwwS4OfAgiep1phax9lTnDhuXWc4/KOIsRVbw5j6bq8tBcaGJY2xaP/WAdB89B7rcXs8cN5nzH44xfPXjfC9JrO93w5gql24ei2QKgHZokNO7i9+4S49OVyvgmXVjJHNORXC/NrB+7zzmVx3iMc6thy1uSClTIoudEOqVGgfGIPwtsJ1K4d7fmXMqcs8hzYNBqYLOBSmLhtWk+R92NXYyIAGi0x7aeC/beQOZ1QJ/ZMZhMR6AVg0n7PWMc95StZY6xew9kTFMxHs+cMdED3TK9F4H9JtepJ9brlXOrBYTMeUHF+Dx1SlTw78nxJc+oQGtc2mXNJns4Ba29hfFCvyRdh+qTg83xNOOwcGPH/eK9hz2r1+NuLch5L5ZVeynmZbmXEVWm6DQy6k8QydjUeAB6Duln3kv2tSf8ntiWsz7i/COAFWrgsJWB3gPe0j0+ILuDod10p9ieuMp58Zxk7/h97l2Lw3Sf6VGuwj8mldp+c/GdLgHl3mnEhb73FUqYo4ChEmvinnppMA3+IyfAKvLN59jjv2te57h8PzX9onDZPWpMxXDPL9nv8Z1NDmYjMqsdFI9wwNBI7tIOq27xdw/lfFXDeP4ezrDnE5fmFE0a9MOLSWm8gi4IIBBGhAXFeQvBNbgXl1hMBmD/AH2d417swziuTLquLq/E+Tv02b9D3Wk/bCzXmXwjiMHisPzFxDMjzetWp0cvwVAYSrhw1odBqNJdUbBgukGYtdSfflqG+mbrdPJ/lHwpyupZgOHxjq2Jx5b+0YnG1Q+oWNnpYIAAaJJ0km5XIeP+L8k4G4WxfEfEGKbh8Hh2EtaTD67/AMNOmPxPcbAD10BXG/ZvyfEZNyP4Xw+KdUdisRhP22s6q8ucXVnGpcm+jmhdWvbS4SyjhLN8hpYTOuJM3zPG08Riazs2zJ2K92wOa1jWAgdMuLtNgpMd56tW3WPZ2d9mjOeIeKeWZ4t4hxVeviM7zLFYuhSc4uZhqHX0U6VPswdBjvMr9Paazt3D3IvirGsf0Vq+D/Y6X+lXcKdvo5xXGeBOQGQZdkGRHEcScbUsRh8Ph6tbDUc8qMw4qhrXOaKYEBnVNhsuOe35now3AmQZE14nH5i/FVGjUsoUz/8AFUb9lqSZZ9ktsxfv7BmRtwPLDNc+czpfmuZuawxrToNDB/rOeuxMOj5XR6Lrjy3xXF+N5eZHyz5YVMPlrsswNNvEHE1en10sFiKo96+hh2//AGtcF/xHRmkzppTn/wAM8VcnePspzDA8wM6zfH4vDux1PGV6z2121GPghw6yHNJi2hEghLh15UmXTHfkwWnwF86vagA/x/8AGP8A+ub/ALGmvoXldaticpw2IxFMU6tXD06lRo0a5zQSB6Er56+0/bn/AMY3/wDPm/7GmtcHmpy+HYr2HMXhcs5JZ1mGPxNLDYTD5ziKtatVeGspsbRpEucToAF6jMMRm3tN8avyzLcRiss5X5JiGnF1m/BVzOsLtAGokXAPyNPUfiIA0OG8d1PZ0ruy51McGUs/eMzbQJ986uWUug1tvcg9IEW6j8X4Vn7PHM7F8r+N2Y6q+rVyPG9NHNcM28sm1Vo/pskkdx1DcLdw72zyxM/Er6F5HluX5LlOGyjKsHRwWAwdJtGhQothlNgFgP7dTqV5j+/hfhl2NwmZYChmGAxFPE4TE021qFam6W1GOEtcD2Ihfub7SvJdu8az588xeIuXWQNzPJuCcVxBR929+Jxba3TQwQBEGqGgvIMzIgWuQun/ABpz/wCafFVRzanElXKMI4yMLlTf2doHYvE1HfVy75ce021OB8+Y9oeHZXigQdwaL7L5bYR49zRn+i1enhk048tsvZ9Ts7zDG5XwnXzLAZRis6xlDCipTwOHe1tXEOgfC0usDvddMOaftK8z8dmOMybL8JT4L9xUdRr0adMvxjHCxa59QfCf9Fo9V3fwrh+xUBt7pv8A3Qvnz7XNIN9oXicgAdRwxPk/s9O6zxSW601yWyNlcoecfHVflfhOEeEcBmXF3HdfF4mpVxOL6qzMDh3P+B9R7yASZPSHODRvsDwzmu/2iOEHYfOeM+IuI8JSxVTopV8NmY9w2pE9EUSGsMAwCLwY0W9vYQwtGnyZxVdtKm2rWzrECpUDQHPDW0w0E7xJjtJXJ/a8oUK3s+8TOrU2uNAYetTkfK4YimAR9z91qZyZ60nTbjvbS/s++0pjsvqYnKOZ2bVMZgGYZ9bC5k+mDXa9gn3T+kfH1CzTr1WJg29vxXnPtJ8zaT8x4PyfFcJcOvHVhKTsVSwuJxDNnOe/45I2Aa3ydV115MtpVecHB9GvRp1qT88wrX06jQ5rh7wWINivpi64k3M/dOWzC9onHvKd3zkwPNHnBwTxPXw2J4rz2lj8FXNPFYHM6xxDOppu17HkiPIIsZB3Xezktx1huY3LvL+J6OHGFrVeqji8O13UKNdhh7QTq3QjwQunftp4WjhufePfTY1rq+X4SpUIHzO6HNk+YaPstz+wHiaj+W3EFAmadLO5aO3VQpz+icklw6jC2ZadjRoDp4UIM3Ko1FjJMo6SV53dYk+JU3j6lWYPiEA6SSUQ7yoIifEqXushHS6L3RSJnTVFRJEogw3I7JtfsoPmJhO+9lEGAKkyY+yk9olCAD3QUfLpqgn7qzB9FBbVA1FlrP2pX9Ps/cYw1pnLw2HHvVYP+C2WdCPstae1EXN5BcXOaHHpwTSenWPe05/Jax/NEvhoH/k9zUPF3FrGu/hvy7DuLe5FZ0H7E/dc+xeVlvP7nDwyeof4UcIsxlBv9J7aRpmPqStc+xPhuh3MGvRrAdGRNYHAEPkuqEOEaRH6LY3G+dtyjmFyk5qVHtOGxTX8O5u/ZpqCGl3o7qP0XTLOfV6ffTGON6Opq7gLJ+HeFeFuT3NjKcK+liX56cvz+q6s5w6nl1KYJhgA6rD+kFzhuSPrZ97QnLRzIr5lRGd4BhH+cDml9v8ArdAXi5BwVUzHD81+QFWvSwuKp5gzO+H6leQ0U3va4OEXgfADF/iKxynO+XPKvj5vEfFnMrOePOODTGBxT8JDsNhKLiGuD9i1usFxMj5QVq23wkjeXs58R0+KuSnC2ZNeHVqeBZhK4Fy2rR/huB8/CD9Vo72rufL2nF8BcC47pgGjmuaUX3GzqFFw32c8eWjcrhfNjP8Ai7kxmXFPLvhrE/s3DnEmIbmuWYyk49dPDVQRUp0nCwkgNJFwGgj5pXEOQPKfNOafEZosNTBZDgnN/eOODflGopU5sajh9Gi52B1jhj+apcr+WNe4PJs2rZLiM5w2T4+rlOEeKWJxtLDOdRouMQHPA6QbixO/kLKg81y17/fS4Gm8ueOmSLCT479gu3vtQca8L8t+WLuUnCeCwzcXjcD+zOw1O7cFhnfM+puar7xNzJcdp6t8r+BeI+YfFVLh7h2g11Qt68RiKsijhaUwajzsNgBdxsPHXHPc3XPLHvqPVPayphz7s02VDBgn5wdv9UbC5jsvB62U3ksb0wA5h3nsf7O+8Ltq/wBjrCmlSDOYeJa4tHvQ7K2kF3dv8QQPWVyThP2S+AMsxNPEZ/mWbcQuaZ9zUcMPQd6tZ8RHjqWby4xZx5V1y5Acp805pcT0/wCBUwvDeEqD944wCG9I1o0z+Ko4W/qgydgfobg8Lh8Fg6ODwdBlDDUKbaVKkwQ1jGgBrQOwAAXGeI884W5ZcHU3nDUMBl2HAo4PA4Ok1nW65DGNFtiST5JWl8d7RHEVSo84LJMnw1In4BVe+o4DyZA/JeH1Hq8JdZV9j0H4N6r1eNy4ce3z4e99o0niHmdyt4BogvNfODm2LaL9NDDjU+DD7+FxDOc9a/PvaG4762HCYTLqeQYZ8yHVBTNNwH/WI+65Fk/NPOqOIy7i7i7gbB18C4Ow+GzvA0R76g1+rASXWMfKS0mO69Vm3ILLcyo4JnBXMPH0+FuIcfTx2MyjGVDXp4wNcKj3U3i/XAPzjXU2W+Hnwzmo4+s/D+f0t++fzl3HGOB+WmQ8PczOSOBwGXOoZ3isA7Os5qms93V0Ug5nwkw2HToBotl+ytXdmuc8z+LGiaeacU1adJw3bSBj6fGFxp/FeHq8wua/NdvSMq4Ryg8P5Q4fK6uPm6f+vA9HBeXyiwtfgzgzlJwxUe+ljs2xtXOMwbMF3vGPLQ7/ALTdf6K6cuesdvN6fhvLn04/rf6R1/zPEGj7XOIrNLSG8aDV5H/nQGoX0Pdq4f1ivnxjKOFwvtXZjVx1MObQ4xD2y/pY537U09LnbWJP07L6EuF3E7OKc3fTnx9tsBposqdnj1CmgUB+Nkn8Q/Vco6Plnxa7/pdnMf8ApLE/7Z67/ey2SfZ94N//AELv9q9fP7iJza3E2a1WGWVMfiHNI3BquIK+gfsrOpu9nzg/oIcG4Oo0xsRWqAj7r080+2OHF+Z77mpwBlnMPIMJlGZ4mvhRhMwo46jWotaXtfTJt8WxBIK5e4ySd5QXO6kWXmt7ad9Ouvt9x/ix4f8A/wB9b/7vVWmvYkH/AIeKBA/+6cX/APAtve3+8Dltw40GCc9BAnth6i1F7Ej2jnrhwXAF2VYsDzZhXpw78bhl+d3tGo+y4nzkdwsOWGf/AOGsfuE4N4xcfP8A1Pd/+s6unp/rQuWVXNaCSQGtBJJMCNyfC6ucRZjW9ovnBT4QyrEVRy74bqDEZliaRIGOqgkDpPYkOaz+r1v3auGGPd2yunUfGYHF4RtD9rweJw7MVRGIw/v2dJq0XEhrxsQYNxaQYXen2PuZdPjPgNnDWY1KYzzIKLKLmgBvv8KIbSqAdxAY7yAfxL9/ap5UYbjHl1TxmRYGlSzjh2gXYGlSYB73DNb8eHA/0WgtHdsbldK+XPGWacC8ZZdxRkruqvhHy6kTDa9J1n0neHC3gwdl6Lrlxce+GT6gPPqte+0hgf3hyI4zoBsluVVKwHmmW1P/AIVyjgbibKeMeFcv4lyTEe+wONpCpTn5mH8THDZzTII7hY8w8J+38v8AiPL+nqOJynFUo7k0nALzY9su7te8dcfYk4oy7IeWPHmOzbECjgMoxTMdWcTow0DMeSacDyQtoezjk+YYvLc05n8RUDTz3jHEDGCm7XDYJtsNRHYdPxfULqT7NWVZrxpxCeXdIubkGa1sNmOfubILsNheoinOwe+o1vrHZfRCmynTpMpUmNp02ANYxogNaBAA8Lry9uzGHh0g5Z/9GvbhxOCPwMq55mOGj+rWZUe39WrfOYRzO9oXD5Z0+94a5fRicVuzEZrUH8Nnn3TZPgz3XXL2jcZjeC/asxvEWVUBVxdDE4TMMNSIJFSo6i0AQNZcCI3XbfkNwbW4H5c4LLswcaudYxzswziu4y6ri63xVJO/TZv/AFVc7qSpjN7jnjrT/NdMvbUxdfifndwtwRg3lxp4ajR6BtVxdYA/6jWrucB1WnUrpfwKBx97ceMzhwNbDZfj8TiGWkdGFZ7ml/rBpWOKatyaz+HcvB4ejg8HRwmHaG0cPTbSptGga0AD8gumXPOmOPfbGynhn/O4bCYnA5e8C4DW/wAet/3nA+i7bcP8UZHnmYZvgcsxoxL8lxQwmPc1h93Tq9IcWB8dLiAfigmDYrqN7Kbn8ae1FnvF1f4hQbjswaSJ+KtU91T/ANV5+ycXbdpn7R3UtJIBgkldLva+r4ji/wBorh/grCOM0qGFwTQ0/LUxNXqcfUNLD9F254f4nyTiDOM5yrKcU7E1smrswuNeymfdMqub1dDX/K5zR8wB+EwCuovKVp4+9tPMeIjNbDYPG4zHMJuAyiPcUf1Z9lePGy2mffs7g8K5BlHCuQYPIMiwbMJl+Dp9FKm383E7uJuSbkmV1E52N/xie2FlfCY/i4TBV8Jl7wLgMb/Hr/kXD6LuPisRSwmHqYmu4NpUaZqPJ2a0En8gV049jptTjPn5xLx3jZJo0MRi+o/hqYmpDfswPTivmpnPEdzal2EiAI+y+c3tPuJ9oDjEf/nm/wCxpr6B8McR5NxTkn74yDGjG4B1WrRZXaxzWvdTeWOLSQOpsgw4WOy+fXtOFr+f/GTmOkfvANPqKVMFXhl6qcvh2M9h3LsHmnJDPctzPC08VgsXnGIo16NUSyox1GkHNPggrrf7QHLbG8seOquVRVq5RiuqtlWKdf3lKbscf6bCQ097HddmfYLcP8UmaskEtz2tI9aVKFtHnLy9yrmVwPieH8w6aOIH8bA4vpl2GrgfC8dwdHDdpPhWZ9OdidPVi64+xVzXdl+OZy14gxX+RYl5OS1ajv8ANVSZdh5/ouuW9nSPxBdw32jt4Xyx4kyjNuFuJMZkmaUamBzTLq5p1WtcQWPaZDmu7aOa4bEFd6PZb5ts5kcKDLc2xDRxPldMNxjTY4mno3ENHnRwGjvDgnNh/qhx5e1bO44/8iM9PbLMT/sXr5YYYfwqIj8Lf5L6l8wHinwHxA9xgNyvFE+IovXy3wMe6olxsGtJ+yvD4qcvmPq5gv8AxKhP/wCE3/uhdAPa+/8ArC8S/wD9r/7vTX0BwbmuwFCo0y11FhBGhloXz49rir1+0PxQAZ6XYZp9RhqazwdsqvL+V2W9hf8A/ghV3/8AprFfpTXIPa3kez1xZ/8A0aH/ALxTXG/YSqB/JGs3dudYoHx8NMrk3tbkD2e+K+ox1UsO0epxFNZvfkan5HSLkkOrnLwZ/wDvuE/2gX0zIgQdJXzP5KFtPnFwa5xAH79wn+1C+lxM691vn8xnh8Oh3tvO/wDDziB/7Lwn6PW3v+T8b/4O+JT/AO2h/wC701p/22Pi594qD8uWYMHx8L/7VuP2AHNHL3iSnIkZ0CR64en/AGLWX/zTH87sgD42Rusa3VOqC/2Xld0m07psSd1TJH5IbAawqMTYFZCen1U7qn+SBsBCKDTREGMQ2FW2gJug+YdypETZWYANlD/NU/8AFAHqpNiAqf5LGJBImSEVkfmnstb+0491LkFxfUa6HNwII/8A8rLLZA/ILXXtLgO5B8aAimQMreR7wwJDmkfXt5haw/NGcvDrd7FDy/MOYb3EdTsiBO343rZuM4UqcYcss34AxDgK2bYFmb5FVNgMSz8IOxkQfBJWrPYfqMOP5g0yCarshDh4Ae+f1C7J5Rk+Jx/Kvh3MctEZtllEYnCEC7oJ6mejh+i8/rLlPUzLH2jr6fX0bjfetHHiXM804R4R555fQqO4m4Jq/ufi7BARUq4cHpc5w9CT4Lj/AEF7vEYXhXhzmLjTjKOGxXLHm1hR7rGtY0NweLf8XSXR8ALj1DYOIP4CvM4vr0uBOL/8cOT4E4rgriVgwXGeWNZ1ihUd8JrFm9yZ7kkfjt6PNOXGRcLYJ2b8W8bNxnJbLqwzbI8qp1feOxtasCW0I/E0XgT8Qcfl+Mr3YZY5SWeK81ll1XhYzhWpxJllfkBx1i2YTi7IOqvwXnVYQzHYaLUidwWiCBcdPenf8cu56jlbyj/wCo8IOyTjrKXnBPwz6U4YOIk4wun4y7Xpv1Egz0rzsz4dxHNLEYXj3mpxN/i/weMjB8D5cKop1aDiQ5ld0wbkNP4ZsZaOmfy5gYfAZq7DcG+0Rl78kz6g33OT8dZfTnD4tmwqmI8lrhEmfgNzfPk/ZoLhHIOKeZ/HIy7Ae+zPOcxqur4nE4h5IaCfjrVXbNE/oANAvoFyf5b5Fyz4Tp5HlA99iHkVMdjXtipiqsfMezRcNbo0eSSdC8ssp5gchqWLxeV8IZVzC4YzNzazs3yGpOMNMD4bfFLBchoBEk/EtmZF7SvKnHH3WaZrjuHcWDDsNmuBqU3NO4locE5Lc5qeDCTHy3ETcFZC5Ws6/Pjk9RoiseYOS9JEgNe9zv8AshsrjWK9pLhjH4k4DgDhziTjbHkwxuBwTqdGfNR4kDz0rhMcvh1uUcM9qvM8XX5h4TL+v/J8vwbKlJmo66hLnOI02aPQL9uCuI3YPJa/GXFHDvDGGyttN1LLcJRyilTq5liO7SQT7turnCy/P2kMLi8Px1lfEFfAe6GYZfRqe5xDA9rKtMQ+m8aGJbI0K8bhdlPizgriPPM54edxNnWU1cO3CtFWs1xpVDBptZSMNa0CQGtA7r5lt+tlN9373DHjv4Zw3X29pbPPe/y9/N9ni4at7zkJndQhjHVuJqTy1g6Wgup9RAGw/sXv+XnFHEGU8guN/wBxsqYjMcC6m3LKbRJbVxBFMdI7hx6gO69VxVgsLQ5M08e7hHFcPYqtnope5dVxJZ0tpE+8LapiXfLMbWXuOXHEdLllyTz3jnMcN79+YYunRyrCEScXWaC1gG8F5cbbMMbLfp5l9bGfo834plx38O5cvG8+3j9P8OP47g1tOvwN7PGCris2i8cQca4ljpBg9ZY4+Ta//qyuUYLMKvEnODh/i4SzLcRnT8uyumGw33FCmfiHgucfz7LwuFeG8+4fyV+WY2sa/M3mFU/aM2ru+bLsIZJae0Cbd7D5QuccZ5Rg+HuK+VOTZdS6MNg8wqUqY0JimJJ8kyT5K9XqL1Za9p/d8H8Ox+ljbfzZy6/bV/vf8uv7cXlmVe0zm9XG4Z+JxlfjB4w2GfApv/iw1xcRY9XwzoIH07xGzTIg7jyvnpxRWNL2psdjGMNct4w6vdk/NGKaI8nwvoS4kuf6n9V6eSx8jGXTG5BXBObnCnGfFuXUMv4V46PCtAtqMx3TgxVfiGugAB8hzI+LTWVzy0WCAAGfsucurtb4dRz7HeYSOnmBhABt+63/APzFz3ljyV5jcv30MPkvNpjMpGKbWxGAdlXXSqDqBeGh7z0FwkSIvdb7aZsoRJXS8uVZmGMUmDMa6LIQFDoFCN/qucbaA5x8heMOZXED8dm3Myl+76Fao/LsAcqhmEY4/L8Lx1OiAXm5hcT4b9lfizhnPsLnmQc0MPgMywji6hXp5W6WkggggvIIIJBBsQu1gMfCfqpv4XT6mWtRjom9tRc1OWnH/HOUYLKGczv3XgBgKdDMqFHLekY6uJ95UJa8EMd/+HMDyuO8neQ3F3LXiVmYZTzIoPy6vUp/vLADKj0Yum0m13npdBIDxcSt/iI08oPhKzM7rR0ze3H+YGV8QZxwrist4Y4hbw/mdYNazHnDCv7ts/GA0kQSLB2o1XWJvsc5n/8AzBwRn/2W/wD+Yu3hveFTt6pjncfC3GXy0Hye5Gcbctc7o4jLOZtN2Uurtfj8tGXO93iWjWA55DHkCOsX9VviuxtehUpPu2owtcPBEfzX6E2hQD4YO6mWVypMZGqPZz5N4blPlmaCtmFLNMzzGs33mKZRNMMoMH8OmASTqXOJ3JHZbYBAN1W6ysfG6ltt2smmqOKuTWF4i595VzJxuPouwWX4akP3eaJLquIpdfu3l0x0guBiJloW1jIm6yBBcj/miFcrb5JNDXQQfK6yZb7M/E2VcxMfnWS8xX5PlmKq1prYOk8Y73NV3U6lPyTt1eAYldmtxA0V2nsrjncfCXGV6PhThPIuFeFaHDWSYP8AZsupU3M6eol9Qu+d73G7nuJJLjuuunB3sx8XcM8WYyrlHM6plOS4pjqFWpl9J7MdVw5dPuyT8DT/AFgTBuBsu05gDXVYnSCFJlZ4OmV6LhnhbLOFeDW8M8K0aeWUKNB7MO4gvIqOB/ivOr3Fx6iSZK1x7O/I5/KvOM2zbG8Q0s5xOOwzMMx1PCmj7toeXPJlzpLj0/ZblVn4kmd1ouM8vDz3AU81yfHZZWfUZSxmHqYd7mfM1r2FpI8gFdZ+XPsu8QcP5jjcLmXMOrT4exjG0cbhMpbUoVcwotNqdRxMMBkz0yYJAN12kN7wlwCkys8LZK4txVw7nB4Io8O8AZzheEquHFOlh6zcC2uyjRaILGsNgSIg7Lrri/ZFzrHYyvjcdzIoYnFV6jqtatUy17n1HuMucSalySdV2zGsdlBeVceS4+EuMy8uvXKzkJxzy7zkYzh/mlQo4WtVpnHYT91F1PEsa64Ic8gO6ZAcLiV2BxjatTD1mUKvuaj2OFOp09XQSDDo3gwY8L9YtZDe6mWdy8rMZPDqvxP7LHFPFGf4nPuIOaFDMMyxRaa1eplLgXQ0NAgVAAAAAABZY5D7KXEeQ5rQzXJuZ7Mvx+HPVSxGHy+ox7NjBFTQ7g2O67Vu30WJ7Lf1ctaZ+nGpeOeX3Mnirlzg+Fa3MzDUMRUpVqOcY1mUBpx9Nzh0NAa4GmA2Q6Pmladp+xzmTbHmBgiO37qf/wDMXb0REKR8V+6mPJlj4W4S+WuOX3BPMDhjgHMOHMTzEoZnihQZRyXGVcsBOADQR8QLiao0gONoWls+9kziTPM8xmdZtzMw+Mx+NrGtXr1Mrf1Pcd/85bYACwAAC7Ygxr3RvcpOSzvC4yxorkXyT4x5YZ0H4XmLQxeSV63vMdln7sIbXIaQC1znnodp8Q1Agr3HPrlVxbzNqswNHj6llPDzBTf+7f3d19dZs/G94cC4aENNgROq29cDwoNelOu72dM1p1Hb7H+bUa1OtQ5i4alVpuD2PZlj2ua4GQQRUsQYMrsXwjk3GWWcD1cqzzi6jnGe9FVtDNTgBTDJbFMupzDy03P9Ldcs3JKpED8lMs8svJMZPDq3xN7LHE3EueYrPc+5n0cfmWLf1169TKnAuIECAKkAAAAAWAC5Fyg5D8Z8tuJqeYZTzJw5y+tVp/vLA/us9GLptPy/E8hroJAeLiV2CZoEBHV5Ct5crNJMJvZtMKgAfzQ2EDtdNAsNgMkX+ihkgR3+6Dc/ZGzKguhJ7KHudtfKE7oR8Vr2VQB+HyUQaGURU0JNgpo4WQRcoLkkqIOsfVUaabKG4hUHX0RUv3/NUWEJun5ogf5rXXtK4Z2L5C8aUWkgjKqlSwn5C15H5LYutvzXC+eDHP5M8ZtbUFInJMV8R2/hlax/NEy8OqnsNUgeI+OHF8H/AAccOifmmob/AEj812q4PzvAZByrybH497hT9x0U6bB1PqOLnQ1o3K6s+wy0HirjMyB/0ccIPmot/ZLWpsy7l1icY9rcG337Guf8ja8n3Zd9QPsuPrc/p8258f5jp6edXH3+f8V+9KhnLs8x1epwg5uQ5ywsx+VVq1N7qrHAhz/dkgzBMtjc+I0XxRwHg+WHHfD2f563M+LOUeDxNSrgKTKxrU8oq1HA/wAWn+Ngdfbq0Nx0u3NluQ4TGZRnH+EWV5phc/wza2Jr5tXlrGOB+AMdMGewH8l5vC+UZ1lvCWDzfA4YZrl2Y4WcyybEN6xUBkOcwGZkXI877eT03Pnx3xuXv+ztzceOc892neZeVYR3MGtzG5i4WtzD5b5xg3YfLsyyuoejJqbyImkw2I06puZJ+L4V5+L4I49z7gilwly+45y/jXlvm+Io0v2rFPY/G5PSDwXCXQYDRER1DQNbK93geDc74XxOL4i5EZpSxGX1y5+acFZo7+GSfmFPqNjtqO3UR8K4Ng8RwBmXFVSvw5nmb8iuPw6MRl+KaWYDEP7QYaAT3gf1Svr4Z45Y7xu3huNl1XuOKeJ8bX53VeBOCeZWX8vsr4Qyyll+BZjHD9nxtcFvWxzHQ10CB1H+iY1K5PnGY87MNkuJx/EnBnLLj3LMHQfXqY2lWaCabGlzndL5E9IJgBeu4ow3MTEYOnT5l8meGuZuADIbnGQva3EOb/SAA6v+zAXEuVWW5Xl+L5xY7h7hzPOHMlp8IuZQwGaMe2pTe5j+ueo3+Jhi5sVZDbl+YcUZSzhTlzmPDHJrgnFZzxqKpo4WtSp06dF7ACAHmneROsL2uYv560sA5ub8Q8t+VuTBt3YfpqVGt/q9XwzHaFxLJC1mUezEDqa9TTsWheiq5bkFTnBx4/PeUXEvMDNBn1c5c2j7wYWnSnR5J6Yk2sRCaHPuQeZZTzJ4f4o5dcT527i1+QZk6rgs6FUmpicPUceiq2oZhzXdQiSIcBcBTOOVOIyPN6+Q5LzPyfBOxzqf+Q4vGfs2Jq3mmCxplxk2gCeyYxnNf9w+7xuJ4N5G8JgXFB1N+NLezSIaHR2griPBOYcPYHPK2D5E8H4/j3i2qSMXxhnrS6jQcdXhz4j/AFZ/raLhn6fDku8o+h6X8T9T6XHo48u3xe8/pXvOJ+XmR8E4Gnm3NXmK9uB6/wCFgMKaj62LcPwUw4lxO0tbadQuVVcfhcZT4e4gznhGtgsRgGvPBfCVSpNdzugAYrEUxZjg1vwgk9Akklxt6LK+HcDw9xf+984xr+Z3Nav/AJq3Xg8rP9UaN6fpGwZqfM4m4ExOE4m4ZxHG2eYjEY3iLHPo5riWVSylTYGgtw7SIgOMCdLWHfzZdPF24vPy+ljeX1uUy9Zlqd7MfntvxNdv19/Z+OVY/i3hbOK/G3FGRVMScVWJxmaYfFMr+5aRDaZawnoYDFp0teAtgcxMXhMy445X43C1adWjWzGo9jmu6hek0i49VxGpg8syLibNa+XcLY/hnhvC5VjMNnYxctw+MdBbR92CSHuJggjurw/SxeGy7klh8eHsr/tNZwDtQxzZYD/1SFzw7TX/ALy9HNMeTKcsmrqzt8dN9t3xr58WOsnG9Y4H2g87xjD7w4fiutVaHjp+TEB3za66jaxXfnl9nWM4h4SwWa5hh6eGxlUEV6NM/Cx4JtfTYxeJXRTiTD1Mw57Z+2gynU95xLioa8OvFYyRF5gH+wrvxwpRbQ4YyukxlFjW4SkAKLYYPhHyjsvZnvrfFswnpp277/w9mNdbKGxRskQpc9keRRaQlwAIvqZSN+yAy7ygp8iZ2SwMlNSB3Cg2QGzeUHbUhXcqf2ILefCjhLiI0VbfUoDJt9UEEyZQk6lBp2kqGxvdQX+xBZ3gBCLeVSbwPRURuqDdx2U3iLSqdYQQ6rI3efI1U/ENEBEnwoLBgm+qhgKD5oVtoPugm999VHfNdZDSbKDUHyirFz5Q/NN/CAWlOwRFOoHhYWj63Vn4zfZCLwgtgPqjbOhY6mewVHf7oqgmCPzV0bAUFgQhsYHqUQ3AQaXQyDP3VPhFQbE6oJhHawqD8MeEQOhH1UPpt9lR6qHSe6CkX8qHWVkdVi0fFCqq6ACnpJCkSR5N0uB/fVRAd/FgkXIGio1S+2u6ojtLHxKDTubKHtrdZNAvYQihkCfKAfDOn8lDe52MqkzIsiJ/ZojTOyai3ojYibIBmP5IrFp/JEViNIU/CdrKusfoh0tEBREETA9VQdSmh9Sm0BFBp+SsWjwoYQEm+gIQPK4rzdg8puLuqm14/cuMlrmyD/BdsuUgH4RJleNmmCw2ZZZi8uxjOvDYqjUoVm6dTHtLXD7ErUurtLOzpB7DeLcOYPEOAa5pqYzhusKbPxVHNewgDzcrsTw1xBw6OX2C4Y4iyfN6rqTCyswYF8Nd1OILXWIInVdSePOW/MTkxxq3MMup5m3D4KqX5bnmBpOcxzNB1FoIY7ps5jrG+oK9tS9pPnY2mHniCkW/KHOyejBPr0aq+o9NebPrxvszxc048emx2bo1+DXe7pY7HcZ47A0zLMHiKbjSgaAxchczbzG4ZpUm02YfNKbGgBrRl7wGgWAA7Lpuz2nuc1NnW7OcA9s/M7KaUfcALDEe1HzjPxfvrKqYdPSBltL+ZP8AfuuWHouTjn22f0/7by9Thl5ldpuJ894JzuuMbSo59gMzbdmNweBcyoD/AFv6X1v5XGM9zLLuJMOMp424To8ZZc0RTxVbL30cTTHh0SD6Eeq6+j2peb/V0HPMm6gItltI/XVeThPaj5u06he/O8prMf8ACGuy2lDTG3SQZGtys/wHL1dUy1f0a/iuPWrjtuTh/lNkDcU3/FlzB464GxNQ/DgqoqVcPPaHQI9XFe24n4H9ozE8OZlw+ePuFOIMvx2GqYaocZgjh6/u3t6TDmtgGDrJWgz7UPN9tP3h4gy1zDb4sso9Plfg32o+b76nw57lbx0kloyyjtuvbjx8mM1ldvPlnhb2jenEXKfmO3hDlPh+GcRw/Tzvg2k84h+MrONAVC1oaWw2Xix7L27+CfaBzekW8R84sryTCNBL2ZHlnxgDWHFrSPoV1r/5zPOB4kcVYAemW4b/AP5XjO9pDnGXH/ps0E7NwOGgenwJ0Z/odWLcZ4M5Y5XmP7fm+U8e8y83BJ9/m1OszDk94IBI8HqC9niOK87zWg3KMRgs24S4bpfCMt4eyZ/W9m464aG/b6LRmE9ornI2r7wca13yIh2DoObHeOj815DPaJ5z0mupjjCo6ZJL8BQLhP8A1LLhyen5M/Ob6np/XcHBPt4d35t/61/w7PcIcfcE8JYD9iyLgbi2gx3+cqfulzqlU93vJl36LzOJ+YfCXFOSVcpzjgfi7F4WpDoOWOa5jtnNdMhw7rqXi/aA51PPW7jTGUmuJA6MDRaJAuB/DX64bn3zoa8Or8ZZm6m5pAjAU7xItFPv/vUnpspNb/4S+t4bn13C7+er/pv3CU+CWYuhXzHh7mfnVHDO6qGEzGk6rQZGnw2n0K5LjM+q8b8yeCX5Zw5n2Bo5VjKlbEVMbgzRY1hYNDptoutzOdvOWt01GcXZ2HOaHhjcsY4EaW/hWnWdNO9v1/xg848+rjLM1zfjDMMvrhratChlj6Xv2lvyS2mD0u0mRI2vCz/DWe//AA65fiOOV3099WTeXz+mnncn/d557TGHrNpOrYdvEOMxYq0Q74mmq8sJLbwOoOmY6SATC700w1tNrWtAaBAAsAOy0pyN5ZVsqzbCcUZxldXLa+GwP7PhMJXqsdVa5wHVVd0WHwy0NJJHUTDdFutvxNgb6Lple75ncEi91WgAXUtBlCSQLQsqoO/2TT+ajfH0Q6/kgrrSp+K26ru6g3hEAbEgIbhRt5VmNphFG2BgqjtopABR2sT6oDTJtomg0ulr9pQ6z2RAD4gh0HqhskTaEVDtZUCB1G8JsU3jaFANzP5qHbymgjuEMkKi7AjWFO19FQYJsppZQVp+GdlBcQptcrIbIhcWj0VFrwprfyh3jZVUGvZHbQjhaeyuoCgHQdyhFvVQ2t4S5tKIrDrawVi2l1O5GhshN42GqqguO94Qa9k7o381ERwHbdZDUgKGDICs3sNFVY+FWx4UGptZUR/vUA+U39EOptoVSY+qqCTIP3TQxqZWM2J+yKybAFkkx+qjNIhB2CBCu9woTPpFkNgZRDePqhEM9EmZOphZG7fVFQH7qRsg3PlXVpPdA2uingoghi9lN/RPKRAEm6iG+8q3lRogiQqPrdBibgLIfKh/JDACKDypqQSNVfBsg+aSgAdMkGLbFHBtmlrYFwIFj3SblBv3VR+bqFB9I0zQolh1YabSPtELxzlmWz1nLsETMz+zMmfsvM3gKnQxAATdHqaXDfDraprDIMoFQt6S4YGkHEXtPT5VocN8O0nONLh/KKfUL9OBpCfs31XtYF9rKjVXd+TUeqrcO8P1qH7PUyLKX0Qer3bsDSLerSY6YlWjkOR0QG0slyymACAG4Om0AGx0buF7PcQkDQKbpqPVM4b4dZTdTZkGUBjokDA0gCBpI6dl+VfhPhatSdTqcNZK6m+zmnAUoP8Aq+V7lU6K9Vqzs4dV5Y8A1ar61XhXLXOczoLfdwGj+qAYafIX5YTlZwDhcR+0U+HaBf1dQ949zgI/DBOlhZc2OhjcpF7nZc+mfDtPU8s8ZX+rwsNk+VYd4fhstwVFxb0yyg0GBoNF5fuxGw7LKZj1V7kbWW3G3fka5zYAcQBbVVxeSAHu+6xsAZF0JjTVN1EIgQFRaRsoLCd1QZBCKG49dk31Q2IKAfFayC6/dS/iVWi2qkjXaEEmXRH1V2turoBEaqbhAEap3PhWfCkGeyBtvZVT0TeBsgb3UV/OyRfygdkEn6JAjwl+kwgExfWEHz66BN9EERb0QSJ1Ko+YodZ1smpiECLKH1+yu+m9kiRA+iiGv2UHc3QRprZW8KqbwpGonaVQCHHdCLyO6AbgDuFLAQsnfM381iJ33KIXgWWTbfa6hMCQoz5RKKoKfiJPdGC8TrusgCfuoIRrIUOo9bKk2N7SoQTBKooEF3qof6P3TdQ6C6ALBZT8MfQKG7voqJtZAveO6baoLkEaGylulBCbgzaVTdotZDp2TWBFkBogfkgjq0Ko+U9lBpI1iEC8IbkXUmJjZUHVyAL/AGWW89ljsJ1V3BO4QPxC6fhNlTr5U211REKKHftoiKjpJCWBtCXm/dT+aiKRJnaZKDVTuFlsfzRUOn1ViTf1WLtgO91mURiLTOysSpOvZUWsgs/ELeimwnsjAd09T6oA+sqn7XUm4VtBQJsYQWCSI1UImxnVA1VUv1QLbq6RKBYSCNkM+IQ6wFbKiRrbVCbEzqhv3U/kEAfMVdvqgn7oBbwCgeFCZ9IVBvM7JFyFBI0VNhO5UB3WR0iVYBI6Cbp2UsZRt4mygpMntCkG4sh3ntZCZaI3Cqlo30Qaa6o25jygBi1kQboe0KyCPGyfhjW0JcDXVBB5+qRdLEeUA03RT/ihsD3KbSoQYkWUF/VI02EQgAgTqhBIv2uqia/DpKDcHsrbr3lBds6IqkSNb7KaH+1JlwGqOPxeIRDsYQQB5CGwUB1tqgDSQroNdE0ElBPQPKKo03MqSIn6pYfZHajv+qIOvBi6p7iEuAQh0hBCCdUAEFU7jQINAdlAaJnzoqDeCEaY11UGt1RLSO6G5VG5uIU2BQALSpAj6q7RNk8RooAFzG+iszACTcGbBQCxJmyoEwdbD9U3shiVRsJUVIuJ7oY17FD8oUIgDyURk2OghT9IlXYzugu66oxi32Kp1gK+VBu7QqC6OFrqxcAKCLzdXTU2VEO26myo7pNpugn4RoO6JcwPKKKxNih9fXwh+aeyC5mLKCAXlZE/Ce0KN3uhmB51VQA/NLFv6odEBgGBCKHVFIHTorpeLoLfqjumuglIjVTS53RFcCTKGwv2lDfRDZFNN0PzXNoV2m6agb3VEG5iEOtk8aKm1lECJIGyG42HZTsjoVVW6eUi9tCrJuZ2U/DB2QBe26aDZAYIA3QoA7QCp/SMqxY+VJEEi0IBkD9FRHTIUdpcbrIdxooMRERMwq3UGyxGttIWdjMd1Qcbx2U8fRDt21QXdOyA3d2is6KGSD3Q7u8oIdYEKgDqk3+qbxZRtigakrIa+lgptY7qt0JQQxp9UMwpNkm4CgC0RqqPl1UFm37qnVUQGxKrTJ8BQ9heVd58IH4gf7hCYkp3lQiZGyA69t4sFYgeiEfE0RdDcmEB19NE2Pok6qDW95QDeT9Arfq9EGhSP96AdBO6Te+mqEmwGyp2QYlZ2Lfoo6CPqknRAbId4Rt5J72UF7IN0FOhuodIF1T3ChUA6Qn6odBdPHcKgNNbJ+CO6TsEGt9bKCEEH0Cp+UnwrvOqhNiEAx0jtolovsr+GFiDaCqMhp4U1+hQboNDKBYA/ZB28bqHSJ1VGpJQQwTAICy2hTzGt0Oo1ugo08FYizN1kfljsFPwkoG6KjZEGBEJMttbdUx0k+EkAQsjHxfRU6WSNCUdY6yiG10PVJm4n7IL2KATr6gIE73RouJk91YuZVbp9VQdfWyh2V/tUM6/qgRcfZLlNt9lXQIVUO09pQ/Lbsh+Jx9EbBaAdURIgn6Kv2UlU77oobuE9kGiCx+ihsAJRFiR4QwSUJAamyCN1kmVRoL+qjNR6qnT6opbv5UAAJV7IbwZUQtrtujRIII20UJJsDur+Ke+6qjtPJAUZPTG/wCirb6I3wgE/wBiXEJsRb1Q3iEQ13UOk3ViE1MeUUHi6HUBBMmEFgb3UQ1PhHbAI28ibJq4wqA0MaBQajfYK/dNIPZFJtKgvPhABF9TqrN4lQT8VgICv/BQD4h5SfiJVA+VRMyVNlT4QNpKAjsra/krH8E2lEXZNP1S33EoSCAO9kVB83T9ZVcZdbTYo2xJ8oNROmoUDUToFd1AZ0sh8SqLpHlNdtFCbgbCyoMCDdAvBvrdLAmO9lSbR3WLrIiu7KWnxKbpv4QNwOyTedAgEmZUibKKosCrMa6oPxAKCSZlBRZvrqoB8UBBBPogmQqKflJH0Uib+bKnUxpCmgJJsEQbcEja6GwI7o0m6HX0QBcfkhNz66psI7pt6lFXYd1HaA/dJnUo42CIpnt6KayFdxdRsASgoPZE1tuibV+cnQ3QjudVWjt2QxrqsjLUrAanSFkbXUP62VAWBQWJVsBKg0NwojLYkTc6KDT0VB8jwpNoCoC5KEzCNE62GwUM/S6DJs9AsbodQDfuhJgQju3cKgdfyUET3V8INY8IoRcnwndANz9k0EogLm/qptMbqi1ybwpEEFAIk30F4Vt0+qEfDbcJE/cBFB8vlJBbpcJp5Tc31RC8q6Abwn8yp+KwnugQLFHfL9EGg3unqUFBtACkGDqg08qzr5QQ6FDeIRomygN5CKsbymjRG5UsFd+yiG/rqEtHZDr4CT53sqDN7qXse6uk6IbkeEUFibKONidR+qp1hHWDdyohspvI2QgyCSrMW72VUtGqgiQOyDQeU8A3KgpiT2Q/YKDX+xU3MogdZ2mVfwlTx5Tc+VVBMa6aoB/xKoAmNAod1EDHSAh+Y7lQmDvO6pNx5VVRaDF4UaLkndAO8p90ANvEaKi5Fr/ol5UFmzKIEgvtYd0Ium4HohsPMoI7WBdU6g/dTQxdX+aiqQde6gkEgKzaVHakDUogSG/VG33lDckbqhFTaVdz5UvIA0VElUQ6xrCEAtE6apoTdV1xCIlzJ+qTawlJkFLgeqKC3porEAGN1O+ipJhESRYQqYmdljMGO4Vsb+EVRMEn0S0n7BD8kypP+9ABv6IgRBi3Tx2VNtkGxsgusokSZ1VOx+ya2UJkjXVUJ7qX6PKyj7KC8W1RVFipB7qmNFRB2QQ62Oid76bqi5hTUEwiLtPcqbIfOybi28Kqv6wgmVAJ9QgsJUFGsJFhISb7qGA6LxsqKSm48IJkAi6m8X1QWdSjDf8Akod72VmD6WlBB37qnRQd/skAmb/8EFOsoNk3UcYaJ1NkAfcHdV03Mwkf8FHfKSfyRAJobo2wlVuplFQSN9VbCATZS5KpguAB2soILEADUq73MCUOogKEEjTXUqgdDskQSVbSTFpTaSgX08IToJ1TS/dB/coB77xCG46u6xNwP7ysu1vRBJ+HTT9UbcSUiwtuqB8KC37+AoCZlN/UoNTGmiIxGoP2WW1j9VDrKXuiqY/JJsTukymjjOgQLHwm/wCiCzb7iyjTF0E1ICyiTeVCN4VBkoKP56qHT62TV3TNkteNEFNgfVSfKWPm6rPI2lBLg6qnuUtOim49UEJvE7qu0AhSLkkKgzrsFBXfZQxB8bIbmeybEqiDWTKoH0nXwp2nuqB8KgWndWb9pUd/NU7xCoh1A7qumfJTU2AgCUJtKCC8i5V1J1hQWVG0IFwSY+im9tCl7hQmQgbx4VGg/NLeltVO4iDKCm0hG6WFzqk/CSBdRlmnvF/VBRayKDcAbokAfL+amqniyyFhfXdZQndQgTKeVbIIOx2VmCe6NA2Q9h3lUDoUFmEwhuYi6v1sgm9lfAHZRuwm6HxZFB+aHUd9VRv+Sa+iqAEhBBBsU3VGs9kGIAmUdcyqNIUIEmO2qirv6XQakpNneEGkmVUPJQ7T2Q3HcnRN9UA/NCD5Z3VGg8JugkfFffZNx4VOsqXJ7KAe2+qbW0GqE3JTvP8AxVVGxbtFkGwKrZgd0NiSohqfzQblUXuSf7VNgPqqJqZOwVnfujdRO6AQ0eNUUv8Amo61pVB0QaW3QAZCDcHVQkiYsFZ+JIJroqJLgNgptHhZRFvCCGOyO0F7EpEgHcoL3PaSiDBLp0UGmqugOl1Gi5MIqySPS6p1IH1UOpGgKp+Ux2URiSCT5VdcFDoBFkm9lQPfRQDYpEn9EFzYf70VXGEbaAn4tVT82qIm4Qz0idENyNtkPpogGY9SqO6XkeCjbEooPlJU3+qo37J37oiE6oZso6IgK6/RAO10bpP2RxNvKC31UDwknU6pcDW6A6nuqBuSJ3snc+FXak7DVIhABgRuppcgpsLWWU2lBi4XhUWEhQwP76qjS6CTJJB2skWgJaPqrPwibHdFS3fZBb++qRa/bRBr3RDQQjfshuCUPy6eEBptPhFd7dkRX5zBACs3+qDVBMydIUDePqreBJU3nTZU7ohr9U3PZQW3kqjsb2lAbefSyurYlGTf9EFwig1FlHCRdB2JSB/JEUbHukXjspcb6KxNhJVAX1QHWOyfhRsiD2RS03UBurew3U/tRF8aWUtAMeqOsAdlYsOyKh0P5QqL2UNyYB1VFnn80FnRLbqaEbQncaoiam6oImUnW3qoCR4RTRvcyqRHrKOG47KG26CgiYUJggR4TRDra6Ck2gIewS52vsg27IEfENO6TLYQn4zdLAemqBpJ7Kt1Cl4iboLkdhogDQhNp+6g0VAvEIBH3VNiCfTVQnvqUdbwiGwG3ZNJTt3S+9iig1HdBoRCCNfogvugSJvsUJv6hTv2Kr/mnx9kDsdlBEk7BWbFRny/RBWghsoInz3UBkE6WAhU6g6ogBfwqbT91iPm+mqrj5RTQ/ok3HmybQqRYDeURJgwrN0jspofogNsdlRtfVQa9uyaE2OiKh20/sWVpKjRN9JQTBgIJsg00Kp0EblLffTwoEWCsgCSbKBAIj1VB3eNVTEKatRvbtoiB1vN9UdHTfwUOoSJMXKKpNiTZB/uU/DMaKiZQQnbfRQCXfyVjttdG6kk6/2IgYLr6I7S2pEBR3p3sr2KKHQlNoH0R1gmggeqCiwHrCKCzfKIMRBFuyrhcD81BpKvf1soHaRpoobXVOv5JuiBGoUi5gq+PKm8bIq7E/dG3BQ6AbI25j6og70VCh9QZ3V3n6KiR3VAlYyTAAV8D6oq7T5Q6FVokgabrE3nuiKRBlSJkKDqk3mdPCyGiKagD8kPy/RB9QhH6oK0djoVhOnqs5kEqai2yBuJVPzBYmCCYMJtO+6BtewCET0zrun4iroe6grjYdljtcKmNxKd77qiOmVRaFSJUFwDdAFhMq6NHfdRDpPhAtrtKdwnYawFHdkFbdp87o06FQ7Kiw7WQQ62WQgGfKd1Dp2RFMQZ+6htE7yjr+ifhFroobT31VJ/NT8RshuB+aB2Gik6+itoJCjrkz2QCe8I6Z9Uda51VG57IIBBF97oAD1HRXVR2kDcygrd/VQGXeN1RbTRQXlyCkX9FBoJjuVe07qtBIJOiCDQT9UNhP5J5TRl/REUaa2Qi8qDYINT6IqiVN5um+6boFpN9EOw+6GepH+sqCxf0CxgyNoCuwlBuVQF3ESqd/CjdYVHzR9EEPyqN+qyOkeVibNO6DL8RUGhTwVDqZ3TYp77AINfG6WgDYlUX1OmqCEjptugMWj/AHqbAQm0ndAd5hZAR6BYm48LKBe6CPElDZoS5BI2HdImLSghkGEVbJMogx072VAvAmw1U09SjZ1UAaSq373U0AH3V0E76oBnc/VNp2UG6pu1ESYKrZmFBpPZVs9SQR2sDQK9/Cbp47KgLBW3T5hBsPuh02QWbkkarED4jtGqpgFRtzN0VRsh1AG/ZCYCuhRAam1pU1Rx3QjZBQRAsoLNm10t0i2qagdoQQ2TaOyo2n81BICgrR8RkbJbqEbICes9ohOxVgHzZQ3PbysrFTz5QB8yCIMbaKxfTZQ2J8qAdIVdFlHaeN1bdQEaFVU77J5+gTe6G7UE7Eq/jk/RG+e6u3mURO4lNZ9VBqqIgfVA1IA0lU/8FL2Cpki6KmjSQgsAEHyygJn7oi9hKmw8odTCd/CKazbRCbD7q9/JUJvCiBvDYR9mmNk0dEpaY+6BebdkA7GUFxHZVtjH1Kojr7bQFk47XWG4hZSCbkIJoFHaADur39EdoIsih1QWHmFLRoqDqgd/uVdbo3WPogI0REA3GgVNhsoCYHkqntuiognpmLodG2ElU6AWlRBoujDeRbyrrPaFGi2iokDqjvcpMk22TeVTuoBsf5KGT6eVZuFDdUTaVbfzQ6qjbwEVCb+imgjeEGh/mqBuQoigAAArGYaCqTcDsFNRNkF2CoEx20T8IhDcfVVUbKINDCIIdYU3Pqg1lJtZRDcdldZlQkbdlY/tKCO+W/2V8JaR91JhpnVFLEfVPMqtme6Wg9lQAPeP5pva1oVNwB3KmltEQnSLquO+wU0PZBoZ9AijttlTprHZCLT9EPy272QQmP7FdwOyA3Gkqd7z5RFOkn6of1UN4HZDDbbhFU3MbJIiOwRo+FQ9j2QJlAZPoo7WFRaAAoA1uVfxKaknsqYiZVBsCSm6gMCO6o0JUA3O6k3jXe6uymrv5KijtG6AwbjdAYJ8KAT0naUAn4rhZaj6KR/vT+dkQ3QyhgDudEganSEVALRtN1fxXGib3Q/Nogur7prKg+bVUm5i4QQ6AQsjv6LHwEteOyCDSBtZUfNaUb27obEwiLEmNVJkyqIE+FAbSipfqP6qjTyhFrpH6IAk/mqNfKg39EkAl0Ih38I1vTJ3VHYLGAbfdFUG50QmQPJQgCwGuqdoQUWabbyh32H6qTc3QSQUFmT2urfULFvdXUwgmrhfdU6+qC990tI8IIdJn0T7WKOMO8I62wugo0hNfMJp9UbrCCbR3ulgFb/ZDqfREQzOsSncwh79goNLIqgajsq3byFANfRWwJ8BBizt2uq4zrog07TrfRSL/wB9EAzMfdUjaPCACJKN+USgtoVAtJ+qx/CD5VJjeyIhsB3RU6gBEGH4QkpEH6aJF5UVXaILXjZCLBQ39UDZU3EyneAn/FEVlkGlt1ALJN7KqrYaJ1Kl7TqguQbWKReICA46Wuq6epSN/Kp1jygn4UEetlQb6aKM27d1EBoTuh7aJ/NDM9lVXV17dlAZKu8oARO10QkCSUMzpCh/W6a/qgCY+xUFxKsS4jVR0DTuiqdYQxMd1Ta5SLgdlBCTqq6zVHXt9FXXEC11QGk9kaIcXSqNCJ31TUoI7xugveEF7KkToY2RE7WiU73vMp5A1QXNt0U2kj0Te6pvH6FQET6oJYkK7n1lB83ondBT27lSbkyqSblYgfmgo2m6CT+qDXSyokCd0RD8ohJJMQRdBsJ1Rp7dkVe91LwhH5pM/qghtaxQ/KbeVXa23Q6W+iiF4jQ7o34jH94QaeqAxoFRW7DRT0KebJv5QU20Chj4VToo75p1sikEW8IJ/JQmVkdSO90Ej4fQKgyoJkjbsg108Ii+RupuPVDogFgSYRS837paNrKo2SfCBEnZARIvoh7J+LwiDSNfoobtJQWd4myHYeEUk66odPqmgBgJ+H6qIoiJSddroBb6qbzCoNHfQKmxVGkn6rH8Jnuim0Kgd1DqBa4V3ARF1jssSZVdZpRvcoDRbXVFIMfqiqp3snYKD+au8lZgE3soI0lU3P1UER3JQUm0m50UAIbrcIDEmVToB+SANDCHwmhk6o3Qk6g2QXSAp6eqOFwqbQqiCwjf9VRFzBgIJDuyaNsUU3J72QWcB91DeD4VZ8xQQi+iydFj3UFumbKEGTOyIov4QeUBJQ3CBeP7FFQYSDPogDWSUET9VL9I9dVZgoIbzJVg6+FIhZR5RUO4Uam0900jygu4RpEGOyGUHbXyiA0QzEnuh2vdCijtSg0QdjroreW7oiTDu6g7lUfKSqdfogjjeNDuqdT+ahF5N1dSQD9UEJkxpCyOsLE3mEJO1psga/dXafFlCIGt0EEoAG+0q/qk3PgKDUIqm4uZIQjSUBmb7oZRA3QTA+6O0ElBF9tEAJfqAQ6AKAkjygupUN7pNh9kuSQUA322TS+2iaQrtE6IqC1pCyvIWIvCyOqIjSAS5IuFifOkLLvZBNBCaj7pP1QeqiqNigN7qGYWW3pqqjHT7IE1N0B8IpoPUqn5rqAHZDqPzRFPyxOylplHHc6fqn4fKDL66dljuALK94QaeiKm3qhF4+qrRcT2V/4ojGbySjtZ0EKG5tpKoNhuoA+X1WQ1HZRuwi+p8ILAwqBk+EQDUSiKwO+tlbgnuVAJJ7K+VkB3lPPdN9ENzPlUIhonZFSPhhTXeZQNx2lVougJsYUbafCBvI+kqujq0Kdv73U7bqh3Kp0A7oRa50/NG6Se6AReAjdZQRJjtKo+6CEad01O6H5ra7q+RugkRJQA9I9EN3eJ1Qz3QWLCUNxqrtdSAiMbQAraLJtpon4kUfZxTtpN0jvv3VGojRA8DSUJsCBG6EQ2TuUdG2vdBiLwg+ZUC5M3FlW6qAdRImVNXSr2PZSD0gKh/IoNBZJHgoToRsgGzT4VMkgWEqaKk3nWEEt1SkkE20KbGfssj3REAi/lQTP9qEQ2DKrb3JgoqO+YhV9vspvJPlU6oAkHSSpuSqLz3UnVA3CpNx6qQbd1RrbSEEIMCY0uhILQShuPACguwjzqoLrJVGqCwvqVNTO3dUGj9Vf1UFyewKsRIAQTuSfRN77lX11Qn/coAOo8odkAtZPwqiRB1uroPojRYmE1OqCbWVMG4myaE33R1wPOgQD3mxV/DH2TQDxqhkNvqgx1mOyo1/vqjd0NvUIChgGEgyh+YQgrrgaaoPyR+vdJmO0oBsSN0/F6lB/NRt0F0BPdTSR3QH4UAJElAj4bqSsj3uViQC4eVBkCTExdVwGyn6odDsqiE6RZFdgiCRAUsNwiLKhsSqYaNhCIqH4TfVHQIE/70RVAWMWQCxCIoB7GNUGo9ERUU6wqYNraWREGLSDKuuhREgNAku3NlbTARENhAspp6C6IqbWBA/vCCJElEQY36Te+ypjv2AREB0DskaX0RFDa6xCakCyIkGIgSZVHa10RBIBNistd7yERBDEfeUOqIgHwYCMAvuNERAHjXVCJ337oiCOWVg3a1kRBAEt02uiIAMnUKHSLIiewu0fooLWsiIKb+kIPljdEQEaPI0REBup0R3r3REAgRBhIvNkRBdpUFwQiIbUC2uyWkfoiIJtYoYABlEQNtldb77XREEb2kGFTBKIgm8zqqB2hEVDUFTYaf2IikNmxvrohHlEQ2CJQAREoiigHlTTtZERFQXkzuiKiDUjbZERB/9k=";
+
+function FixWithKim() {
+  const [lang, setLang] = useState("en");
+  const [openFaq, setOpenFaq] = useState(0);
+  const [selectedService, setSelectedService] = useState("paint");
+  const [chatOpen, setChatOpen] = useState(false);
+  const [photoUploaded, setPhotoUploaded] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [activeProject, setActiveProject] = useState(0);
+
+  const t = lang === "en" ? content.en : content.ko;
+  const isKo = lang === "ko";
+
+  return (
+    <div
+      style={{
+        backgroundColor: "#FAF4E6",
+        color: "#0F0F0F",
+        colorScheme: "light",
+        fontFamily: "'Plus Jakarta Sans', 'Noto Sans KR', system-ui, sans-serif",
+      }}
+      className="min-h-screen overflow-x-hidden"
+    >
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;600;700;900&family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
+
+        :root { color-scheme: light; }
+
+        .fw-display { font-family: 'Fraunces', 'Noto Serif KR', serif; font-variation-settings: "opsz" 144; }
+        .fw-display-ko { font-family: 'Noto Serif KR', serif; font-weight: 700; }
+        .fw-ko { font-family: 'Noto Serif KR', serif; }
+
+        @keyframes fade-up {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse-soft {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(160, 40, 40, 0.4); }
+          50% { box-shadow: 0 0 0 14px rgba(160, 40, 40, 0); }
+        }
+        @keyframes seal-stamp {
+          0% { opacity: 0; transform: scale(1.3) rotate(-12deg); }
+          60% { opacity: 1; transform: scale(0.95) rotate(-3deg); }
+          100% { opacity: 1; transform: scale(1) rotate(-5deg); }
+        }
+        .fade-up { animation: fade-up 0.6s ease-out both; }
+        .pulse-soft { animation: pulse-soft 2.5s infinite; }
+        .seal-stamp { animation: seal-stamp 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+
+        .hover-lift { transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s; }
+        .hover-lift:hover { transform: translateY(-4px); }
+
+        .img-zoom { transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .group:hover .img-zoom { transform: scale(1.05); }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Subtle paper texture */
+        .paper-bg {
+          background-color: #FAF4E6;
+          background-image:
+            radial-gradient(circle at 20% 30%, rgba(184, 155, 90, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(160, 40, 40, 0.025) 0%, transparent 50%);
+        }
+
+        /* Korean meander pattern divider */
+        .meander {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='12' viewBox='0 0 40 12'%3E%3Cpath d='M 2 6 L 2 2 L 10 2 L 10 8 L 6 8 L 6 5 L 14 5 L 14 10 L 18 10 L 18 2 L 26 2 L 26 8 L 22 8 L 22 5 L 30 5 L 30 10 L 34 10 L 34 2 L 38 2' fill='none' stroke='%23B89B5A' stroke-width='1.2' opacity='0.7'/%3E%3C/svg%3E");
+          background-repeat: repeat-x;
+          background-position: center;
+          height: 12px;
+        }
+      `}</style>
+
+      {/* ============ TOP NAV ============ */}
+      <nav className="sticky top-0 z-40 backdrop-blur-xl border-b" style={{ backgroundColor: "rgba(250,244,230,0.92)", borderColor: "rgba(15,15,15,0.08)" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-3">
+          <Logo />
+          <div className="hidden lg:flex items-center gap-7 text-sm font-medium" style={{ color: "#3A322A" }}>
+            {t.nav.map((item, i) => (
+              <a key={i} href={`#${["services", "work", "estimate", "reviews", "contact"][i]}`} className="hover:text-[#A02828] transition">{item}</a>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setLang(isKo ? "en" : "ko")}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full border text-[11px] font-bold transition"
+              style={{ borderColor: "rgba(15,15,15,0.15)", color: "#0F0F0F" }}
+            >
+              <Languages size={12} />
+              {isKo ? "EN" : "한국어"}
+            </button>
+            <a href="tel:+19729998888" className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition" style={{ backgroundColor: "#A02828", color: "#FAF4E6" }}>
+              <Phone size={13} /> (972) 999-8888
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      {/* ============ HERO ============ */}
+      <section className="relative paper-bg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-10 sm:pt-16 pb-8 sm:pb-14">
+          <div className="inline-flex items-center gap-2 text-[10px] sm:text-[11px] tracking-[0.3em] font-bold uppercase mb-6 sm:mb-10" style={{ color: "#A02828" }}>
+            <span className="w-7 h-px" style={{ backgroundColor: "#A02828" }}></span>
+            {t.hero.tag}
+          </div>
+
+          <div className="grid lg:grid-cols-12 gap-8 sm:gap-12 items-end">
+            <div className="lg:col-span-7">
+              {/* Korean tagline */}
+              <div className="fw-ko text-base sm:text-lg mb-3 sm:mb-4" style={{ color: "#B89B5A", fontWeight: 600 }}>
+                김씨와 함께 — {isKo ? "정성껏 고쳐드립니다" : "fixed with care"}
+              </div>
+
+              <h1 className={`${isKo ? "fw-display-ko" : "fw-display"} font-medium tracking-[-0.025em] leading-[0.95]`}
+                  style={{ fontSize: "clamp(40px, 8.5vw, 104px)", color: "#0F0F0F" }}>
+                {t.hero.h1a}<br />
+                <span style={{ color: "#A02828", fontStyle: "italic", fontWeight: 300 }}>{t.hero.h1b}</span> {t.hero.h1c}
+              </h1>
+              <p className="mt-6 sm:mt-8 max-w-xl leading-relaxed text-base sm:text-lg" style={{ color: "#4A4138" }}>
+                {t.hero.sub}
+              </p>
+
+              <div className="mt-8 sm:mt-10 flex flex-wrap gap-3">
+                <a href="#contact" className="group inline-flex items-center gap-2.5 px-6 sm:px-7 py-3.5 sm:py-4 rounded-full text-[15px] font-semibold transition hover-lift" style={{ backgroundColor: "#A02828", color: "#FAF4E6" }}>
+                  {t.hero.cta1}
+                  <ArrowRight size={16} className="transition group-hover:translate-x-1" />
+                </a>
+                <a href="tel:+19729998888" className="inline-flex items-center gap-2.5 px-6 sm:px-7 py-3.5 sm:py-4 rounded-full text-[15px] font-semibold transition" style={{ border: "1.5px solid #0F0F0F", color: "#0F0F0F" }}>
+                  <Phone size={14} /> {t.hero.cta2}
+                </a>
+              </div>
+
+              <div className="mt-10 sm:mt-12 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs sm:text-[13px]" style={{ color: "#4A4138" }}>
+                <div className="flex items-center gap-2"><Shield size={14} style={{ color: "#A02828" }} /> {t.hero.trust1}</div>
+                <div className="flex items-center gap-2"><Languages size={14} style={{ color: "#A02828" }} /> {t.hero.trust2}</div>
+                <div className="flex items-center gap-2"><Clock size={14} style={{ color: "#A02828" }} /> {t.hero.trust3}</div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 relative">
+              <div className="relative aspect-[4/5] rounded-3xl overflow-hidden">
+                <img
+                  src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=85&auto=format&fit=crop"
+                  alt="Beautifully maintained Texas home"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(15,15,15,0.6) 100%)" }} />
+                <div className="absolute bottom-5 left-5 right-5 text-white">
+                  <div className="text-[10px] tracking-[0.25em] font-bold uppercase opacity-80 mb-1" style={{ color: "#E8C880" }}>DFW · Recent Project</div>
+                  <div className={`${isKo ? "fw-display-ko" : "fw-display"} text-xl sm:text-2xl font-medium`}>Plano · Kitchen Refresh</div>
+                </div>
+
+                {/* Hanko stamp overlay - top right */}
+                <div className="absolute top-5 right-5 seal-stamp">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded flex items-center justify-center" style={{ backgroundColor: "#A02828", border: "2px solid #FAF4E6", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
+                    <div className="text-center">
+                      <div className="fw-ko text-white font-black text-lg sm:text-xl leading-none">정직</div>
+                      <div className="text-[7px] text-white/90 mt-0.5 tracking-widest font-bold">HONEST</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating review card */}
+              <div className="absolute -bottom-6 -left-3 sm:-left-8 rounded-2xl p-4 sm:p-5 max-w-[230px] shadow-xl"
+                style={{ backgroundColor: "#FAF4E6", border: "1px solid rgba(15,15,15,0.1)" }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => <Star key={i} size={11} className="fill-[#A02828] text-[#A02828]" />)}
+                  </div>
+                  <span className="text-[11px] font-bold">5.0</span>
+                </div>
+                <p className={`${isKo ? "fw-display-ko" : "fw-display"} text-[13px] leading-snug italic`} style={{ color: "#0F0F0F" }}>
+                  "{t.hero.quote}"
+                </p>
+                <div className="text-[10px] mt-2 font-semibold" style={{ color: "#7A6D5E" }}>— {t.hero.quoteAttr}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats strip */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-12 sm:mt-20 pb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px rounded-2xl overflow-hidden" style={{ backgroundColor: "rgba(15,15,15,0.1)" }}>
+            {t.stats.map((s, i) => (
+              <div key={i} className="p-5 sm:p-7 paper-bg">
+                <div className={`${isKo ? "fw-display-ko" : "fw-display"} text-4xl sm:text-5xl font-medium leading-none mb-2`} style={{ color: "#0F0F0F" }}>{s.n}</div>
+                <div className="text-[10px] sm:text-[11px] uppercase tracking-widest font-semibold" style={{ color: "#7A6D5E" }}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Meander divider */}
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        <div className="meander opacity-70" />
+      </div>
+
+      {/* ============ SERVICES ============ */}
+      <section id="services" className="py-14 sm:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-10 sm:mb-14">
+            <div>
+              <div className="text-[10px] sm:text-[11px] tracking-[0.3em] font-bold uppercase mb-4" style={{ color: "#A02828" }}>— {t.services.label}</div>
+              <h2 className={`${isKo ? "fw-display-ko" : "fw-display"} font-medium leading-[0.95] tracking-[-0.02em] max-w-2xl`}
+                  style={{ fontSize: "clamp(36px, 5.5vw, 64px)", color: "#0F0F0F" }}>
+                {t.services.title}{" "}
+                <span style={{ color: "#A02828", fontStyle: "italic", fontWeight: 300 }}>{t.services.titleItalic}</span>
+              </h2>
+            </div>
+            <p className="max-w-sm leading-relaxed text-sm sm:text-base" style={{ color: "#4A4138" }}>{t.services.sub}</p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {t.services.list.map((s, i) => {
+              const Icon = [Hammer, Paintbrush, Droplets, Plug, Home, Sparkles][i];
+              return (
+                <div key={i} className="group cursor-pointer">
+                  <div className="relative aspect-[5/4] rounded-2xl overflow-hidden mb-4">
+                    <img src={SERVICE_IMAGES[i]} alt={s.title} className="w-full h-full object-cover img-zoom" />
+                    <div className="absolute inset-0" style={{ background: "linear-gradient(0deg, rgba(15,15,15,0.55) 0%, transparent 50%)" }} />
+                    <div className="absolute top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md" style={{ backgroundColor: "rgba(250,244,230,0.95)" }}>
+                      <Icon size={16} style={{ color: "#0F0F0F" }} strokeWidth={1.8} />
+                    </div>
+                    <div className="absolute top-4 right-4 text-[10px] font-mono" style={{ color: "rgba(232,200,128,0.95)" }}>0{i + 1}</div>
+                  </div>
+                  <h3 className={`${isKo ? "fw-display-ko" : "fw-display"} text-xl sm:text-2xl font-medium tracking-tight mb-2`} style={{ color: "#0F0F0F" }}>
+                    {s.title}
+                  </h3>
+                  <p className="text-sm leading-relaxed mb-3" style={{ color: "#4A4138" }}>{s.desc}</p>
+                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest" style={{ color: "#A02828" }}>
+                    {t.services.cta} <ArrowUpRight size={13} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ FEATURED PROJECTS ============ */}
+      <section id="work" className="py-14 sm:py-24" style={{ backgroundColor: "#F2E8CC" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="text-center mb-10 sm:mb-14 max-w-2xl mx-auto">
+            <div className="text-[10px] sm:text-[11px] tracking-[0.3em] font-bold uppercase mb-4" style={{ color: "#A02828" }}>— {t.featured.label}</div>
+            <h2 className={`${isKo ? "fw-display-ko" : "fw-display"} font-medium leading-[0.95] tracking-[-0.02em] mb-4`}
+                style={{ fontSize: "clamp(36px, 5.5vw, 60px)", color: "#0F0F0F" }}>
+              {t.featured.title}
+            </h2>
+            <p className="leading-relaxed text-sm sm:text-base" style={{ color: "#4A4138" }}>{t.featured.sub}</p>
+          </div>
+
+          <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar pb-2">
+            {t.featured.projects.map((p, i) => (
+              <button key={i}
+                onClick={() => setActiveProject(i)}
+                className="px-4 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition flex-shrink-0"
+                style={{
+                  backgroundColor: activeProject === i ? "#0F0F0F" : "#FAF4E6",
+                  color: activeProject === i ? "#FAF4E6" : "#0F0F0F",
+                  border: activeProject === i ? "none" : "1px solid rgba(15,15,15,0.12)",
+                }}>
+                {p.tab}
+              </button>
+            ))}
+          </div>
+
+          {(() => {
+            const proj = t.featured.projects[activeProject];
+            return (
+              <div className="grid lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
+                <div className="lg:col-span-8 relative aspect-[16/11] sm:aspect-[16/10] rounded-3xl overflow-hidden">
+                  <img src={PROJECT_IMAGES[activeProject]} alt={proj.title} className="w-full h-full object-cover" />
+                </div>
+                <div className="lg:col-span-4 rounded-3xl p-7 sm:p-8 flex flex-col justify-between" style={{ backgroundColor: "#FAF4E6", border: "1px solid rgba(15,15,15,0.1)" }}>
+                  <div>
+                    <div className="text-[10px] tracking-[0.25em] font-bold uppercase mb-3" style={{ color: "#A02828" }}>{proj.loc}</div>
+                    <h3 className={`${isKo ? "fw-display-ko" : "fw-display"} text-3xl sm:text-4xl font-medium tracking-tight mb-4 leading-[1.05]`} style={{ color: "#0F0F0F" }}>{proj.title}</h3>
+                    <p className="text-sm leading-relaxed mb-6" style={{ color: "#4A4138" }}>{proj.desc}</p>
+
+                    <div className="space-y-3 pt-5" style={{ borderTop: "1px solid rgba(15,15,15,0.1)" }}>
+                      {proj.specs.map((spec, i) => (
+                        <div key={i} className="flex items-center justify-between text-sm">
+                          <span style={{ color: "#7A6D5E" }}>{spec.k}</span>
+                          <span className="font-semibold" style={{ color: "#0F0F0F" }}>{spec.v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <a href="#contact" className="mt-7 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-full text-sm font-semibold transition" style={{ backgroundColor: "#A02828", color: "#FAF4E6" }}>
+                    {t.featured.cta} <ArrowRight size={14} />
+                  </a>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      </section>
+
+      {/* ============ TRUST - Hanko-stamp style cards ============ */}
+      <section className="py-14 sm:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="max-w-3xl mb-10 sm:mb-14">
+            <div className="text-[10px] sm:text-[11px] tracking-[0.3em] font-bold uppercase mb-4" style={{ color: "#A02828" }}>— {t.trust.label}</div>
+            <h2 className={`${isKo ? "fw-display-ko" : "fw-display"} font-medium leading-[0.95] tracking-[-0.02em]`}
+                style={{ fontSize: "clamp(36px, 5.5vw, 60px)", color: "#0F0F0F" }}>
+              {t.trust.title} <span style={{ color: "#A02828", fontStyle: "italic", fontWeight: 300 }}>{t.trust.titleItalic}</span>
+            </h2>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            {t.trust.items.map((item, i) => {
+              const seals = ["보증", "한국어", "최고", "정성"]; // guarantee, korean, finest, care
+              return (
+                <div key={i} className="relative rounded-2xl p-6 sm:p-7 hover-lift transition" style={{ backgroundColor: "#F2E8CC", border: "1.5px solid #0F0F0F" }}>
+                  {/* Hanko-style seal in corner */}
+                  <div className="absolute -top-3 -right-3 w-12 h-12 rounded flex items-center justify-center" style={{ backgroundColor: "#A02828", boxShadow: "0 4px 10px rgba(160,40,40,0.3)", transform: "rotate(-6deg)" }}>
+                    <span className="fw-ko text-white font-black text-base">{seals[i]}</span>
+                  </div>
+                  <h3 className={`${isKo ? "fw-display-ko" : "fw-display"} text-lg sm:text-xl font-medium tracking-tight mb-2 mt-3 pr-6`} style={{ color: "#0F0F0F" }}>{item.t}</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: "#4A4138" }}>{item.d}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ MEET SEAN ============ */}
+      <section className="py-14 sm:py-24" style={{ backgroundColor: "#F2E8CC" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="grid lg:grid-cols-12 gap-8 sm:gap-14 items-center">
+            <div className="lg:col-span-5 order-2 lg:order-1">
+              <div className="relative aspect-[4/5] rounded-3xl overflow-hidden">
+                <img
+                  src="https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=800&q=85&auto=format&fit=crop"
+                  alt="Skilled hands at work"
+                  className="w-full h-full object-cover"
+                />
+                {/* Hanko signature stamp overlay */}
+                <div className="absolute bottom-6 right-6 w-20 h-20 rounded flex items-center justify-center" style={{ backgroundColor: "#A02828", boxShadow: "0 6px 16px rgba(0,0,0,0.3)", transform: "rotate(-4deg)" }}>
+                  <div className="text-center">
+                    <div className="fw-ko text-white font-black text-2xl leading-none">김</div>
+                    <div className="text-[8px] text-white/90 mt-1 tracking-widest font-bold">SEAN KIM</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-7 order-1 lg:order-2">
+              <div className="text-[10px] sm:text-[11px] tracking-[0.3em] font-bold uppercase mb-4" style={{ color: "#A02828" }}>— {t.about.label}</div>
+              <div className="fw-ko text-base mb-3" style={{ color: "#B89B5A", fontWeight: 600 }}>김씨 (Mr. Kim) — 장인 정신</div>
+              <h2 className={`${isKo ? "fw-display-ko" : "fw-display"} font-medium leading-[0.95] tracking-[-0.02em] mb-6`}
+                  style={{ fontSize: "clamp(36px, 6vw, 64px)", color: "#0F0F0F" }}>
+                {t.about.title} <span style={{ color: "#A02828", fontStyle: "italic", fontWeight: 300 }}>{t.about.titleItalic}</span>
+              </h2>
+              <p className="text-base sm:text-lg leading-relaxed mb-5" style={{ color: "#4A4138" }}>{t.about.p1}</p>
+              <p className="leading-relaxed mb-8" style={{ color: "#4A4138" }}>{t.about.p2}</p>
+
+              <div className="grid grid-cols-2 gap-5 pt-7" style={{ borderTop: "1.5px solid rgba(15,15,15,0.12)" }}>
+                {t.about.values.map((v, i) => (
+                  <div key={i}>
+                    <div className={`${isKo ? "fw-display-ko" : "fw-display"} text-2xl sm:text-3xl font-medium mb-1`} style={{ color: "#A02828" }}>{v.n}</div>
+                    <div className="text-sm font-semibold mb-1" style={{ color: "#0F0F0F" }}>{v.t}</div>
+                    <div className="text-xs sm:text-sm" style={{ color: "#7A6D5E" }}>{v.d}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ INSTANT ESTIMATE ============ */}
+      <section id="estimate" className="py-14 sm:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="text-center mb-10 sm:mb-14 max-w-2xl mx-auto">
+            <div className="text-[10px] sm:text-[11px] tracking-[0.3em] font-bold uppercase mb-4" style={{ color: "#A02828" }}>— {t.estimate.label}</div>
+            <h2 className={`${isKo ? "fw-display-ko" : "fw-display"} font-medium leading-[0.95] tracking-[-0.02em] mb-4`}
+                style={{ fontSize: "clamp(36px, 5.5vw, 60px)", color: "#0F0F0F" }}>
+              {t.estimate.title}
+            </h2>
+            <p className="leading-relaxed text-sm sm:text-base" style={{ color: "#4A4138" }}>{t.estimate.sub}</p>
+          </div>
+
+          <div className="grid lg:grid-cols-12 gap-5 sm:gap-6 max-w-5xl mx-auto">
+            <div className="lg:col-span-5">
+              <div className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "#7A6D5E" }}>{t.estimate.pickLabel}</div>
+              <div className="space-y-2">
+                {t.estimate.services.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => setSelectedService(s.id)}
+                    className="w-full text-left px-5 py-4 rounded-xl flex items-center justify-between transition"
+                    style={{
+                      backgroundColor: selectedService === s.id ? "#0F0F0F" : "#FAF4E6",
+                      color: selectedService === s.id ? "#FAF4E6" : "#0F0F0F",
+                      border: selectedService === s.id ? "none" : "1px solid rgba(15,15,15,0.12)",
+                    }}>
+                    <span className="font-semibold text-sm">{s.name}</span>
+                    <ArrowRight size={14} style={{ color: selectedService === s.id ? "#E8C880" : "rgba(15,15,15,0.3)" }} />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="lg:col-span-7">
+              {(() => {
+                const svc = t.estimate.services.find(s => s.id === selectedService);
+                return (
+                  <div className="rounded-3xl p-7 sm:p-10 h-full relative overflow-hidden" style={{ backgroundColor: "#F2E8CC", border: "1.5px solid #0F0F0F" }}>
+                    {/* Decorative hanko corner */}
+                    <div className="absolute top-5 right-5 w-12 h-12 rounded flex items-center justify-center opacity-90" style={{ backgroundColor: "#A02828", transform: "rotate(-4deg)" }}>
+                      <span className="fw-ko text-white font-black text-base">가격</span>
+                    </div>
+
+                    <div className="text-xs font-bold uppercase tracking-[0.25em] mb-3" style={{ color: "#A02828" }}>{t.estimate.priceLabel}</div>
+                    <h3 className={`${isKo ? "fw-display-ko" : "fw-display"} text-2xl sm:text-3xl font-medium mb-2 tracking-tight pr-16`} style={{ color: "#0F0F0F" }}>{svc.name}</h3>
+                    <div className={`${isKo ? "fw-display-ko" : "fw-display"} font-medium tracking-tight my-6 sm:my-8 leading-none`}
+                         style={{ fontSize: "clamp(56px, 9vw, 96px)", color: "#0F0F0F" }}>
+                      ${svc.low}<span style={{ fontSize: "0.36em", color: "#A8A095" }}>–${svc.high}</span>
+                    </div>
+                    <p className="text-sm leading-relaxed mb-6 sm:mb-8" style={{ color: "#4A4138" }}>{svc.detail}</p>
+                    <div className="space-y-2.5 pt-5" style={{ borderTop: "1px solid rgba(15,15,15,0.12)" }}>
+                      {svc.includes.map((inc, i) => (
+                        <div key={i} className="flex items-center gap-3 text-sm" style={{ color: "#0F0F0F" }}>
+                          <Check size={14} style={{ color: "#A02828" }} className="flex-shrink-0" />
+                          {inc}
+                        </div>
+                      ))}
+                    </div>
+                    <a href="#contact" className="mt-7 inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-semibold text-sm transition" style={{ backgroundColor: "#A02828", color: "#FAF4E6" }}>
+                      {t.estimate.cta} <ArrowRight size={14} />
+                    </a>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Meander divider */}
+      <div className="max-w-3xl mx-auto px-4 py-2">
+        <div className="meander opacity-60" />
+      </div>
+
+      {/* ============ REVIEWS ============ */}
+      <section id="reviews" className="py-14 sm:py-24" style={{ backgroundColor: "#F2E8CC" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-5 mb-10 sm:mb-14">
+            <div>
+              <div className="text-[10px] sm:text-[11px] tracking-[0.3em] font-bold uppercase mb-4" style={{ color: "#A02828" }}>— {t.reviews.label}</div>
+              <h2 className={`${isKo ? "fw-display-ko" : "fw-display"} font-medium leading-[0.95] tracking-[-0.02em] max-w-2xl`}
+                  style={{ fontSize: "clamp(36px, 5.5vw, 60px)", color: "#0F0F0F" }}>
+                {t.reviews.title} <span style={{ color: "#A02828", fontStyle: "italic", fontWeight: 300 }}>{t.reviews.titleItalic}</span>
+              </h2>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex">
+                {[...Array(5)].map((_, i) => <Star key={i} size={18} className="fill-[#A02828] text-[#A02828]" />)}
+              </div>
+              <div>
+                <div className="font-bold text-sm" style={{ color: "#0F0F0F" }}>5.0 / 5.0</div>
+                <div className="text-xs" style={{ color: "#7A6D5E" }}>{t.reviews.basedOn}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Featured large quote */}
+          <div className="grid lg:grid-cols-12 gap-5 mb-5">
+            <div className="lg:col-span-7 rounded-3xl p-7 sm:p-10 relative overflow-hidden" style={{ backgroundColor: "#0F0F0F", color: "#FAF4E6" }}>
+              {/* Decorative hanko in corner */}
+              <div className="absolute -top-2 -right-2 w-20 h-20 rounded flex items-center justify-center" style={{ backgroundColor: "#A02828", transform: "rotate(8deg)" }}>
+                <div className="text-center">
+                  <div className="fw-ko text-white font-black text-xl leading-none">최고</div>
+                  <div className="text-[7px] text-white/90 mt-1 tracking-widest font-bold">5 STARS</div>
+                </div>
+              </div>
+
+              <Quote size={36} style={{ color: "#E8C880" }} className="mb-5" />
+              <p className={`${isKo ? "fw-display-ko" : "fw-display"} text-2xl sm:text-3xl leading-snug font-light italic mb-6 pr-16`}>
+                "{t.reviews.featured.quote}"
+              </p>
+              <div className="flex items-center gap-3 pt-5" style={{ borderTop: "1px solid rgba(232,200,128,0.25)" }}>
+                <div className="w-11 h-11 rounded-full flex items-center justify-center font-bold" style={{ backgroundColor: "#A02828" }}>
+                  {t.reviews.featured.initial}
+                </div>
+                <div>
+                  <div className="font-semibold">{t.reviews.featured.name}</div>
+                  <div className="text-xs" style={{ color: "rgba(250,244,230,0.6)" }}>{t.reviews.featured.loc}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 rounded-3xl p-7 sm:p-10 flex flex-col justify-between" style={{ backgroundColor: "#FAF4E6", border: "1px solid rgba(15,15,15,0.1)" }}>
+              <div>
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, j) => <Star key={j} size={14} className="fill-[#A02828] text-[#A02828]" />)}
+                </div>
+                <p className={`${isKo ? "fw-display-ko" : "fw-display"} text-lg sm:text-xl leading-relaxed italic font-light mb-5`} style={{ color: "#0F0F0F" }}>
+                  "{t.reviews.items[0].quote}"
+                </p>
+              </div>
+              <div className="flex items-center gap-3 pt-5" style={{ borderTop: "1px solid rgba(15,15,15,0.08)" }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style={{ backgroundColor: "#0F0F0F", color: "#FAF4E6" }}>
+                  {t.reviews.items[0].initial}
+                </div>
+                <div>
+                  <div className="font-semibold text-sm" style={{ color: "#0F0F0F" }}>{t.reviews.items[0].name}</div>
+                  <div className="text-xs" style={{ color: "#7A6D5E" }}>{t.reviews.items[0].loc}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {t.reviews.items.slice(1, 5).map((r, i) => (
+              <div key={i} className="rounded-2xl p-6 hover-lift transition" style={{ backgroundColor: "#FAF4E6", border: "1px solid rgba(15,15,15,0.1)" }}>
+                <div className="flex mb-3">
+                  {[...Array(5)].map((_, j) => <Star key={j} size={12} className="fill-[#A02828] text-[#A02828]" />)}
+                </div>
+                <p className="text-sm leading-relaxed mb-5" style={{ color: "#0F0F0F" }}>"{r.quote}"</p>
+                <div className="flex items-center gap-2.5 pt-4" style={{ borderTop: "1px solid rgba(15,15,15,0.08)" }}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style={{ backgroundColor: "#F2E8CC", color: "#0F0F0F" }}>
+                    {r.initial}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-xs" style={{ color: "#0F0F0F" }}>{r.name}</div>
+                    <div className="text-[10px]" style={{ color: "#7A6D5E" }}>{r.loc}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ QUOTE FORM ============ */}
+      <section id="contact" className="py-14 sm:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="grid lg:grid-cols-12 gap-8 sm:gap-14">
+            <div className="lg:col-span-5">
+              <div className="text-[10px] sm:text-[11px] tracking-[0.3em] font-bold uppercase mb-4" style={{ color: "#A02828" }}>— {t.form.label}</div>
+              <div className="fw-ko text-base mb-3" style={{ color: "#B89B5A", fontWeight: 600 }}>김씨에게 문의하기</div>
+              <h2 className={`${isKo ? "fw-display-ko" : "fw-display"} font-medium leading-[0.95] tracking-[-0.02em] mb-6`}
+                  style={{ fontSize: "clamp(36px, 6vw, 64px)", color: "#0F0F0F" }}>
+                {t.form.title}<br />
+                <span style={{ color: "#A02828", fontStyle: "italic", fontWeight: 300 }}>{t.form.titleItalic}</span>
+              </h2>
+              <p className="leading-relaxed mb-8 text-sm sm:text-base" style={{ color: "#4A4138" }}>{t.form.sub}</p>
+
+              <div className="space-y-5">
+                {[
+                  { Icon: Phone, label: t.form.callLabel, val: "(972) 999-8888", sub: t.form.hours, href: "tel:+19729998888" },
+                  { Icon: Mail, label: t.form.emailLabel, val: "sean@fixwithkim.com", sub: t.form.replyTime, href: "mailto:sean@fixwithkim.com" },
+                  { Icon: MapPin, label: t.form.serviceLabel, val: "Carrollton · Plano · Frisco", sub: "Richardson · Lewisville · Allen · McKinney" },
+                ].map((c, i) => (
+                  <a key={i} href={c.href} className="flex items-start gap-4 group">
+                    <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition" style={{ backgroundColor: "#0F0F0F" }}>
+                      <c.Icon size={15} style={{ color: "#E8C880" }} />
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase tracking-widest font-semibold mb-1" style={{ color: "#7A6D5E" }}>{c.label}</div>
+                      <div className="font-semibold text-[15px] group-hover:text-[#A02828] transition" style={{ color: "#0F0F0F" }}>{c.val}</div>
+                      <div className="text-xs mt-0.5" style={{ color: "#7A6D5E" }}>{c.sub}</div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <div className="lg:col-span-7">
+              <div className="rounded-3xl p-7 sm:p-10" style={{ backgroundColor: "#F2E8CC", border: "1.5px solid #0F0F0F" }}>
+                {formSubmitted ? (
+                  <div className="text-center py-12">
+                    <div className="w-20 h-20 mx-auto rounded flex items-center justify-center mb-5 seal-stamp" style={{ backgroundColor: "#A02828", transform: "rotate(-4deg)" }}>
+                      <div className="text-center">
+                        <div className="fw-ko text-white font-black text-2xl leading-none">접수</div>
+                        <div className="text-[8px] text-white/90 mt-1 tracking-widest font-bold">RECEIVED</div>
+                      </div>
+                    </div>
+                    <h3 className={`${isKo ? "fw-display-ko" : "fw-display"} text-2xl sm:text-3xl font-medium tracking-tight mb-3`} style={{ color: "#0F0F0F" }}>
+                      {t.form.success.t}
+                    </h3>
+                    <p className="mb-6" style={{ color: "#4A4138" }}>{t.form.success.d}</p>
+                    <button onClick={() => { setFormSubmitted(false); setPhotoUploaded(false); }} className="text-sm font-semibold underline" style={{ color: "#A02828" }}>
+                      {t.form.success.again}
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={(e) => { e.preventDefault(); setFormSubmitted(true); }} className="space-y-5">
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <Field label={t.form.name} placeholder={t.form.namePh} />
+                      <Field label={t.form.phone} placeholder="(555) 555-5555" type="tel" />
+                    </div>
+                    <Field label={t.form.email} placeholder="you@example.com" type="email" />
+                    <div>
+                      <label className="text-xs font-bold uppercase tracking-widest mb-2 block" style={{ color: "#7A6D5E" }}>{t.form.serviceType}</label>
+                      <div className="relative">
+                        <select className="w-full px-4 py-3.5 rounded-xl text-sm font-medium appearance-none cursor-pointer focus:outline-none" style={{ backgroundColor: "#FAF4E6", border: "1px solid rgba(15,15,15,0.12)", color: "#0F0F0F" }}>
+                          {t.form.types.map((tp, i) => <option key={i}>{tp}</option>)}
+                        </select>
+                        <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "rgba(15,15,15,0.4)" }} />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold uppercase tracking-widest mb-2 block" style={{ color: "#7A6D5E" }}>{t.form.describe}</label>
+                      <textarea rows={4} placeholder={t.form.describePh} className="w-full px-4 py-3.5 rounded-xl text-sm focus:outline-none resize-none" style={{ backgroundColor: "#FAF4E6", border: "1px solid rgba(15,15,15,0.12)", color: "#0F0F0F" }} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold uppercase tracking-widest mb-2 block" style={{ color: "#7A6D5E" }}>{t.form.photo}</label>
+                      <button
+                        type="button"
+                        onClick={() => setPhotoUploaded(!photoUploaded)}
+                        className="w-full rounded-xl py-8 flex flex-col items-center justify-center gap-2 transition"
+                        style={{
+                          border: `2px dashed ${photoUploaded ? "#A02828" : "rgba(15,15,15,0.2)"}`,
+                          backgroundColor: photoUploaded ? "rgba(160,40,40,0.06)" : "#FAF4E6",
+                        }}>
+                        {photoUploaded ? (
+                          <>
+                            <Check size={22} style={{ color: "#A02828" }} />
+                            <span className="text-sm font-semibold" style={{ color: "#A02828" }}>kitchen-faucet.jpg</span>
+                            <span className="text-xs" style={{ color: "#7A6D5E" }}>{t.form.photoSwap}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Camera size={22} style={{ color: "rgba(15,15,15,0.4)" }} />
+                            <span className="text-sm font-semibold" style={{ color: "#0F0F0F" }}>{t.form.photoCta}</span>
+                            <span className="text-xs" style={{ color: "#7A6D5E" }}>{t.form.photoHint}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <button type="submit" className="w-full py-4 rounded-full font-semibold flex items-center justify-center gap-2 text-base transition" style={{ backgroundColor: "#A02828", color: "#FAF4E6" }}>
+                      <Send size={16} /> {t.form.submit}
+                    </button>
+                    <p className="text-xs text-center" style={{ color: "#7A6D5E" }}>{t.form.privacy}</p>
+                  </form>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ FAQ ============ */}
+      <section className="py-14 sm:py-24" style={{ backgroundColor: "#F2E8CC" }}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-8">
+          <div className="text-center mb-10 sm:mb-14">
+            <div className="text-[10px] sm:text-[11px] tracking-[0.3em] font-bold uppercase mb-4" style={{ color: "#A02828" }}>— FAQ</div>
+            <h2 className={`${isKo ? "fw-display-ko" : "fw-display"} font-medium leading-[0.95] tracking-[-0.02em]`}
+                style={{ fontSize: "clamp(36px, 5.5vw, 60px)", color: "#0F0F0F" }}>
+              {t.faq.title}
+            </h2>
+          </div>
+
+          <div className="space-y-2">
+            {t.faq.items.map((f, i) => (
+              <div key={i} className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#FAF4E6", border: "1px solid rgba(15,15,15,0.1)" }}>
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? -1 : i)}
+                  className="w-full flex items-center justify-between px-6 py-5 text-left"
+                >
+                  <span className={`${isKo ? "fw-display-ko" : "fw-display"} text-lg sm:text-xl font-medium tracking-tight pr-4`} style={{ color: "#0F0F0F" }}>{f.q}</span>
+                  <ChevronDown size={18} className="flex-shrink-0 transition" style={{ transform: openFaq === i ? "rotate(180deg)" : "none", color: openFaq === i ? "#A02828" : "rgba(15,15,15,0.4)" }} />
+                </button>
+                {openFaq === i && (
+                  <div className="px-6 pb-6 leading-relaxed fade-up text-sm sm:text-[15px]" style={{ color: "#4A4138" }}>{f.a}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ FINAL CTA ============ */}
+      <section className="py-14 sm:py-24">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8">
+          <div className="rounded-3xl p-10 sm:p-16 text-center relative overflow-hidden" style={{ backgroundColor: "#0F0F0F", color: "#FAF4E6" }}>
+            {/* Decorative hanko corner */}
+            <div className="absolute top-6 right-6 sm:top-8 sm:right-8 w-16 h-16 sm:w-20 sm:h-20 rounded flex items-center justify-center" style={{ backgroundColor: "#A02828", transform: "rotate(-6deg)" }}>
+              <div className="text-center">
+                <div className="fw-ko text-white font-black text-xl sm:text-2xl leading-none">시작</div>
+                <div className="text-[7px] text-white/90 mt-1 tracking-widest font-bold">START NOW</div>
+              </div>
+            </div>
+
+            <div className="fw-ko text-sm sm:text-base mb-3" style={{ color: "#E8C880", fontWeight: 600 }}>김씨와 함께 시작하세요</div>
+
+            <h2 className={`${isKo ? "fw-display-ko" : "fw-display"} font-medium leading-[1] tracking-[-0.02em] mb-5`}
+                style={{ fontSize: "clamp(36px, 6vw, 60px)" }}>
+              {t.finalCta.title}<br />
+              <span style={{ color: "#E8C880", fontStyle: "italic", fontWeight: 300 }}>{t.finalCta.titleItalic}</span>
+            </h2>
+            <p className="max-w-lg mx-auto mb-8 leading-relaxed text-sm sm:text-base" style={{ color: "rgba(250,244,230,0.7)" }}>
+              {t.finalCta.sub}
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              <a href="#contact" className="inline-flex items-center gap-2 px-7 py-4 rounded-full font-semibold text-base transition" style={{ backgroundColor: "#A02828", color: "#FAF4E6" }}>
+                {t.finalCta.cta1} <ArrowRight size={16} />
+              </a>
+              <a href="tel:+19729998888" className="inline-flex items-center gap-2 px-7 py-4 rounded-full font-semibold text-base" style={{ border: "1.5px solid rgba(250,244,230,0.3)", color: "#FAF4E6" }}>
+                <Phone size={14} /> {t.finalCta.cta2}
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ FOOTER ============ */}
+      <footer className="py-14" style={{ backgroundColor: "#F2E8CC", borderTop: "1px solid rgba(15,15,15,0.1)" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          {/* Meander divider at top */}
+          <div className="meander mb-10 opacity-60" />
+
+          <div className="grid md:grid-cols-12 gap-8 mb-10">
+            <div className="md:col-span-5">
+              <Logo />
+              <p className="mt-5 leading-relaxed max-w-sm text-sm" style={{ color: "#4A4138" }}>{t.footer.tag}</p>
+              <div className="fw-ko mt-4 text-sm" style={{ color: "#B89B5A", fontWeight: 600 }}>김씨와 함께 — Built on trust, backed by craft</div>
+            </div>
+            <div className="md:col-span-2">
+              <div className="text-[10px] uppercase tracking-widest font-bold mb-4" style={{ color: "#A02828" }}>{t.footer.col1}</div>
+              <ul className="space-y-2 text-sm" style={{ color: "#4A4138" }}>
+                {t.services.list.slice(0, 4).map((s, i) => <li key={i}>{s.title}</li>)}
+              </ul>
+            </div>
+            <div className="md:col-span-2">
+              <div className="text-[10px] uppercase tracking-widest font-bold mb-4" style={{ color: "#A02828" }}>{t.footer.col2}</div>
+              <ul className="space-y-2 text-sm" style={{ color: "#4A4138" }}>
+                <li>Carrollton</li><li>Plano</li><li>Frisco</li><li>Richardson</li>
+              </ul>
+            </div>
+            <div className="md:col-span-3">
+              <div className="text-[10px] uppercase tracking-widest font-bold mb-4" style={{ color: "#A02828" }}>{t.footer.col3}</div>
+              <div className="text-sm space-y-1" style={{ color: "#4A4138" }}>
+                <div>(972) 999-8888</div>
+                <div>sean@fixwithkim.com</div>
+                <div className="text-xs mt-3" style={{ color: "#7A6D5E" }}>Mon–Sat · 8am–7pm</div>
+              </div>
+            </div>
+          </div>
+          <div className="pt-7 flex flex-wrap justify-between items-center gap-3 text-xs" style={{ borderTop: "1px solid rgba(15,15,15,0.1)", color: "#7A6D5E" }}>
+            <div>© 2026 FixWithKim. {t.footer.rights}</div>
+            <div>Licensed · Insured · {t.footer.bilingual}</div>
+          </div>
+        </div>
+      </footer>
+
+      {/* ============ STICKY MOBILE CTA BAR ============ */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-3 py-2.5 backdrop-blur-xl"
+        style={{ backgroundColor: "rgba(250,244,230,0.96)", borderTop: "1px solid rgba(15,15,15,0.1)" }}>
+        <div className="flex gap-2">
+          <a href="tel:+19729998888" className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-semibold text-sm" style={{ border: "1.5px solid #0F0F0F", color: "#0F0F0F" }}>
+            <Phone size={14} /> {t.mobile.call}
+          </a>
+          <a href="#contact" className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-semibold text-sm" style={{ backgroundColor: "#A02828", color: "#FAF4E6" }}>
+            {t.mobile.quote} <ArrowRight size={14} />
+          </a>
+        </div>
+      </div>
+
+      {/* ============ CHAT BUBBLE ============ */}
+      <div className="fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-50">
+        {chatOpen ? (
+          <div className="rounded-2xl shadow-2xl w-[300px] sm:w-[340px] overflow-hidden fade-up" style={{ backgroundColor: "#FAF4E6", border: "1.5px solid #0F0F0F" }}>
+            <div className="p-4 flex items-center justify-between" style={{ backgroundColor: "#0F0F0F" }}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded flex items-center justify-center" style={{ backgroundColor: "#A02828" }}>
+                  <span className="fw-ko text-white font-black text-base">김</span>
+                </div>
+                <div>
+                  <div className="font-semibold text-sm" style={{ color: "#FAF4E6" }}>Sean Kim</div>
+                  <div className="text-xs flex items-center gap-1.5" style={{ color: "rgba(250,244,230,0.6)" }}>
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#7BB87A" }}></span>{t.chat.online}
+                  </div>
+                </div>
+              </div>
+              <button onClick={() => setChatOpen(false)} style={{ color: "rgba(250,244,230,0.6)" }}><X size={18} /></button>
+            </div>
+            <div className="p-5 space-y-3 min-h-[180px]" style={{ backgroundColor: "#F2E8CC" }}>
+              <div className="p-3 rounded-xl rounded-tl-sm text-sm max-w-[85%] shadow-sm" style={{ backgroundColor: "#FAF4E6", color: "#0F0F0F" }}>
+                {t.chat.msg1}
+              </div>
+              <div className="p-3 rounded-xl rounded-tl-sm text-sm max-w-[85%] shadow-sm" style={{ backgroundColor: "#FAF4E6", color: "#0F0F0F" }}>
+                {t.chat.msg2}
+              </div>
+            </div>
+            <div className="p-3 flex gap-2" style={{ borderTop: "1px solid rgba(15,15,15,0.1)" }}>
+              <input placeholder={t.chat.placeholder} className="flex-1 px-3 py-2 text-sm rounded-full focus:outline-none" style={{ backgroundColor: "#F2E8CC", color: "#0F0F0F" }} />
+              <button className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "#A02828", color: "#FAF4E6" }}><Send size={14} /></button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setChatOpen(true)}
+            className="rounded-full shadow-2xl flex items-center justify-center pulse-soft transition"
+            style={{ backgroundColor: "#A02828", color: "#FAF4E6", width: "52px", height: "52px" }}
+          >
+            <MessageCircle size={22} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// =================== LOGO (uses the actual brand logo) ===================
+function Logo() {
+  return (
+    <a href="#" className="flex items-center gap-2.5 group">
+      <img src={LOGO_URL} alt="FixWithKim" className="w-11 h-11 sm:w-12 sm:h-12 object-contain" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.08))" }} />
+      <div className="flex flex-col leading-none">
+        <div className="fw-ko text-[10px] font-semibold tracking-wide mb-0.5" style={{ color: "#B89B5A" }}>
+          김씨와 함께
+        </div>
+        <div className="text-[18px] sm:text-[20px] font-medium tracking-tight" style={{ fontFamily: "'Fraunces', serif", color: "#0F0F0F" }}>
+          Fix<span style={{ color: "#A02828", fontStyle: "italic", fontWeight: 300 }}>with</span>Kim
+        </div>
+      </div>
+    </a>
+  );
+}
+
+// =================== FIELD ===================
+function Field({ label, placeholder, type = "text" }) {
+  return (
+    <div>
+      <label className="text-xs font-bold uppercase tracking-widest mb-2 block" style={{ color: "#7A6D5E" }}>{label}</label>
+      <input
+        type={type}
+        placeholder={placeholder}
+        className="w-full px-4 py-3.5 rounded-xl text-sm focus:outline-none transition"
+        style={{ backgroundColor: "#FAF4E6", border: "1px solid rgba(15,15,15,0.12)", color: "#0F0F0F" }}
+      />
+    </div>
+  );
+}
+
+// =================== IMAGES ===================
+const SERVICE_IMAGES = [
+  "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?w=700&q=85&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=700&q=85&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1620626011761-996317b8d101?w=700&q=85&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1565374395542-0ce18882c857?w=700&q=85&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=700&q=85&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=700&q=85&auto=format&fit=crop",
+];
+
+const PROJECT_IMAGES = [
+  "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&q=85&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1200&q=85&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1600210492493-0946911123ea?w=1200&q=85&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=1200&q=85&auto=format&fit=crop",
+];
+
+// =================== CONTENT ===================
+const content = {
+  en: {
+    nav: ["Services", "Work", "Estimate", "Reviews", "Contact"],
+    hero: {
+      tag: "DALLAS · FORT WORTH · 한국어 BILINGUAL",
+      h1a: "Your home,",
+      h1b: "fixed",
+      h1c: "with care.",
+      sub: "Premium handyman services across the Dallas-Fort Worth metroplex. Bilingual English & 한국어. Free quotes within 24 hours, every job backed by a satisfaction guarantee.",
+      cta1: "Get a Free Quote",
+      cta2: "Call Sean",
+      trust1: "Licensed & Insured",
+      trust2: "한국어 · English",
+      trust3: "24-Hour Response",
+      quote: "Sean is the one I call before anyone else. Just incredible work.",
+      quoteAttr: "Min-Jung K., Plano",
+    },
+    stats: [
+      { n: "24hr", l: "Quote Response" },
+      { n: "5.0★", l: "Google Rating" },
+      { n: "100%", l: "Bilingual EN / KO" },
+      { n: "$0", l: "Free Estimates" },
+    ],
+    services: {
+      label: "WHAT WE DO",
+      title: "Skilled hands.",
+      titleItalic: "Honest work.",
+      sub: "Every project gets the same craftsmanship and attention to detail — from a loose hinge to a full kitchen refresh.",
+      cta: "Request quote",
+      list: [
+        { title: "General Repairs", desc: "Drywall patching, door & cabinet fixes, trim, weatherproofing." },
+        { title: "Painting", desc: "Interior & exterior, accent walls, color consults, full-room refreshes." },
+        { title: "Minor Plumbing", desc: "Faucet swaps, toilet repairs, disposal install, leak fixes." },
+        { title: "Minor Electrical", desc: "Fixtures, ceiling fans, outlets, switches, dimmers." },
+        { title: "Home Improvement", desc: "Shelving, TV mounting, deck repair, flooring touch-ups." },
+        { title: "Move-In Ready", desc: "Pre-listing fixes, punch-list, new-home setup, deep prep." },
+      ],
+    },
+    featured: {
+      label: "FEATURED PROJECTS",
+      title: "Real homes. Real results.",
+      sub: "A selection of recent transformations across DFW.",
+      cta: "Start a project like this",
+      projects: [
+        { tab: "Kitchen", loc: "PLANO · 2-DAY PROJECT", title: "Modern Kitchen Refresh", desc: "Cabinet refacing, new hardware, backsplash refresh, fixture swap, and accent paint. A complete look-and-feel update without a gut remodel.",
+          specs: [{ k: "Timeline", v: "2 days" }, { k: "Budget tier", v: "$$" }, { k: "Style", v: "Modern minimal" }] },
+        { tab: "Bathroom", loc: "FRISCO · 1-DAY PROJECT", title: "Master Bath Upgrade", desc: "New vanity install, mirror swap, faucet and shower head replacement, regrouting, and lighting upgrade. Fresh, hotel-quality finish.",
+          specs: [{ k: "Timeline", v: "1 day" }, { k: "Budget tier", v: "$$" }, { k: "Style", v: "Spa modern" }] },
+        { tab: "Living Room", loc: "CARROLLTON · 1-DAY PROJECT", title: "Open Living Refresh", desc: "Accent wall paint, large-format TV mounting with concealed wiring, floating shelf install, and trim touch-up throughout.",
+          specs: [{ k: "Timeline", v: "1 day" }, { k: "Budget tier", v: "$" }, { k: "Style", v: "Warm contemporary" }] },
+        { tab: "Outdoor", loc: "RICHARDSON · 2-DAY PROJECT", title: "Deck Restoration", desc: "Board replacement, railing rebuild, full sanding and stain. Brought a 12-year-old deck back to like-new condition.",
+          specs: [{ k: "Timeline", v: "2 days" }, { k: "Budget tier", v: "$$" }, { k: "Style", v: "Classic warm wood" }] },
+      ],
+    },
+    trust: {
+      label: "WHY HOMEOWNERS CHOOSE US",
+      title: "Built on trust.",
+      titleItalic: "Backed by craft.",
+      items: [
+        { t: "Fully Licensed & Insured", d: "$1M general liability coverage. Compliant with Texas state and DFW local regulations." },
+        { t: "Bilingual Service", d: "Fluent English and Korean. Comfortable communication, clear estimates, no confusion." },
+        { t: "Satisfaction Guaranteed", d: "If you're not happy, we make it right. Quality of work is our reputation." },
+        { t: "Customer-First", d: "On time. Clean job sites. Clear communication. Treated like your home is our own." },
+      ],
+    },
+    about: {
+      label: "MEET SEAN",
+      title: "Family man.",
+      titleItalic: "Craftsman.",
+      p1: "Sean Kim spent years running a small hospitality business in California before relocating to North Texas with his family. He brings the same hands-on attention, customer care, and pride of ownership to every home he works on.",
+      p2: "Born to immigrant parents, Sean speaks fluent Korean and English. He understands the trust required to let someone into your home — and honors it on every job, from a small drywall patch to a full room refresh.",
+      values: [
+        { n: "01", t: "Hands-on craftsmanship", d: "Every detail done right the first time." },
+        { n: "02", t: "Honest communication", d: "Clear pricing, clear timeline, no surprises." },
+        { n: "03", t: "Respect your home", d: "Clean, tidy, treated like family." },
+        { n: "04", t: "Two languages, one standard", d: "한국어 환영 — same care for every client." },
+      ],
+    },
+    estimate: {
+      label: "INSTANT ESTIMATE",
+      title: "See your price in seconds.",
+      sub: "Pick a service to see typical pricing for DFW homes. Final quote depends on job specifics — request a free in-person estimate to lock it in.",
+      pickLabel: "Choose a service",
+      priceLabel: "Typical Range",
+      cta: "Get this scheduled",
+      services: [
+        { id: "paint", name: "Interior Paint (per room)", low: 300, high: 800, detail: "One room, walls only. Two coats premium paint. Trim and ceiling priced separately.", includes: ["Surface prep & light patching", "2 coats premium paint", "Tape, drop cloths included", "Move + replace furniture"] },
+        { id: "drywall", name: "Drywall Repair", low: 150, high: 400, detail: "Patch holes, replace damaged sections, prime and texture-match.", includes: ["Patch up to 4 holes", "Texture matching", "Primer included", "Cleanup & haul-away"] },
+        { id: "faucet", name: "Faucet Replacement", low: 150, high: 300, detail: "Remove old faucet, install new (customer-supplied), test, clean up.", includes: ["Removal of old fixture", "Install of new faucet", "Leak testing", "Standard supply lines"] },
+        { id: "tv", name: "TV Mounting", low: 100, high: 250, detail: "Up to 75\" TV. Stud-anchored, leveled, cable management included.", includes: ["Up to 75\" TV", "Stud-anchored mount", "Cord concealment", "Final calibration"] },
+        { id: "fan", name: "Ceiling Fan Install", low: 175, high: 350, detail: "Install new fan in existing box. Wiring, balancing, remote sync.", includes: ["Wiring & connection", "Blade assembly", "Balancing", "Remote/switch setup"] },
+        { id: "deck", name: "Deck Board Repair", low: 250, high: 700, detail: "Replace rotted boards, re-secure railings, sand and stain.", includes: ["Up to 6 boards", "Rail re-secure", "Sanding included", "Optional staining"] },
+      ],
+    },
+    reviews: {
+      label: "REVIEWS",
+      title: "Loved by",
+      titleItalic: "neighbors.",
+      basedOn: "Based on Google reviews",
+      featured: {
+        quote: "Sean was on time, communicated clearly in both English and Korean, and finished five small projects in one visit. The drywall and paint work is invisible — you can't even see where the damage was. Already booked him for next month.",
+        name: "Min-Jung K.",
+        loc: "Plano · Verified Google review",
+        initial: "M",
+      },
+      items: [
+        { quote: "Honest pricing, no upsell. Texted me a quote within an hour after I sent photos. Quality work — highly recommend.", name: "David R.", loc: "Frisco", initial: "D" },
+        { quote: "친절하고 꼼꼼하게 일해 주셨어요. 작은 일도 정성껏 해주시고 가격도 합리적입니다.", name: "Hye-Jin L.", loc: "Carrollton", initial: "H" },
+        { quote: "Mounted 3 TVs, installed a ceiling fan, patched 2 walls in 4 hours. Clean, careful, no mess.", name: "Jennifer T.", loc: "McKinney", initial: "J" },
+        { quote: "Explained everything before starting and stayed within the original quote. Will use again.", name: "Marcus W.", loc: "Richardson", initial: "M" },
+        { quote: "Fixed a leak the plumber said would cost $800 for $180. Saved my weekend.", name: "Sarah B.", loc: "Allen", initial: "S" },
+      ],
+    },
+    form: {
+      label: "GET YOUR QUOTE",
+      title: "Tell us about",
+      titleItalic: "your project.",
+      sub: "Fill out the form and Sean will get back to you within 24 hours with a free estimate. Photos help — upload one if you have it.",
+      callLabel: "Call or Text",
+      hours: "Mon–Sat · 8am–7pm",
+      emailLabel: "Email",
+      replyTime: "Replies within 24 hours",
+      serviceLabel: "Service Area",
+      name: "Your name",
+      namePh: "Sarah Lee",
+      phone: "Phone",
+      email: "Email",
+      serviceType: "Service needed",
+      types: ["General repair", "Painting", "Plumbing", "Electrical", "Home improvement", "Other / Multiple"],
+      describe: "Describe the job",
+      describePh: "A quick description helps me prepare and bring the right tools…",
+      photo: "Attach a photo (optional but helpful)",
+      photoCta: "Tap to upload",
+      photoHint: "JPG or PNG · up to 10MB",
+      photoSwap: "Tap to change photo",
+      submit: "Send My Free Quote Request",
+      privacy: "We never share your info. Quotes are 100% free with no obligation.",
+      success: { t: "Quote request received!", d: "Sean will text or email you within 24 hours. For urgent issues call (972) 999-8888.", again: "Submit another request" },
+    },
+    faq: {
+      title: "Common questions.",
+      items: [
+        { q: "Are you licensed and insured?", a: "Yes. FixWithKim carries $1M general liability insurance and operates fully compliant with Texas state and local regulations. Texas does not require a statewide handyman license; we register with Dallas city for work within city limits." },
+        { q: "What's your service area?", a: "Primary service area includes Carrollton, Plano, Frisco, Richardson, Lewisville, Allen, McKinney, The Colony, and Addison. We can travel further for larger jobs." },
+        { q: "How fast can you respond?", a: "Quotes are typically returned within 24 hours, often same-day. Urgent issues we try to handle within a few hours when scheduling allows." },
+        { q: "Do you charge for estimates?", a: "No. All quotes are free with no obligation. We'll look at the job, give you a written estimate, and you decide whether to move forward." },
+        { q: "What payment methods do you accept?", a: "Cash, check, Zelle, Venmo, or credit card (3% processing fee). Payment due upon completion, except jobs requiring custom-ordered materials." },
+        { q: "Do you speak Korean? / 한국어 가능한가요?", a: "Yes — Sean is fully bilingual in English and Korean. 한국어로 편하게 연락 주세요. We serve many Korean families in Carrollton, Plano, and Richardson." },
+      ],
+    },
+    finalCta: {
+      title: "Ready when",
+      titleItalic: "you are.",
+      sub: "Free quote within 24 hours. No obligation, no pressure. Let's make your home everything it should be.",
+      cta1: "Get Free Quote",
+      cta2: "(972) 999-8888",
+    },
+    chat: {
+      online: "Online · replies in minutes",
+      msg1: "안녕하세요! I'm Sean. Thanks for visiting FixWithKim 👋",
+      msg2: "What kind of project are you thinking about? Happy to chat in English or Korean.",
+      placeholder: "Type a message…",
+    },
+    mobile: { call: "Call", quote: "Free Quote" },
+    footer: {
+      tag: "Premium bilingual handyman services across the Dallas-Fort Worth metroplex. Honest work, fair prices, every time.",
+      col1: "Services",
+      col2: "Service Area",
+      col3: "Contact",
+      rights: "All rights reserved.",
+      bilingual: "Bilingual EN / 한국어",
+    },
+  },
+  ko: {
+    nav: ["서비스", "작업 사례", "견적", "후기", "문의"],
+    hero: {
+      tag: "달라스 · 포트워스 · 한국어 가능",
+      h1a: "당신의 집을,",
+      h1b: "정성껏",
+      h1c: "고쳐드립니다.",
+      sub: "달라스-포트워스 전 지역 프리미엄 핸디맨 서비스. 한국어와 영어 모두 가능합니다. 24시간 이내 무료 견적, 모든 작업 만족 보장.",
+      cta1: "무료 견적 받기",
+      cta2: "전화하기",
+      trust1: "라이선스 · 보험 완비",
+      trust2: "한국어 · English",
+      trust3: "24시간 응답",
+      quote: "Sean은 제가 가장 먼저 부르는 분입니다. 정말 훌륭한 솜씨.",
+      quoteAttr: "김민정, Plano",
+    },
+    stats: [
+      { n: "24시간", l: "견적 응답" },
+      { n: "5.0★", l: "구글 평점" },
+      { n: "100%", l: "한·영 가능" },
+      { n: "$0", l: "무료 견적" },
+    ],
+    services: {
+      label: "서비스 안내",
+      title: "숙련된 손길.",
+      titleItalic: "정직한 작업.",
+      sub: "작은 경첩 수리부터 주방 전체 리프레시까지 — 모든 프로젝트에 같은 정성과 디테일을 담습니다.",
+      cta: "견적 요청",
+      list: [
+        { title: "일반 수리", desc: "드라이월 보수, 문·캐비닛 수리, 몰딩, 외풍 차단." },
+        { title: "페인트", desc: "실내·외, 포인트 벽, 컬러 상담, 룸 전체 리프레시." },
+        { title: "간단 배관", desc: "수도꼭지 교체, 변기 수리, 분쇄기 설치, 누수 수리." },
+        { title: "간단 전기", desc: "조명, 천장 선풍기, 콘센트, 스위치, 디머." },
+        { title: "홈 임프루브먼트", desc: "선반, TV 벽걸이, 데크 수리, 바닥 보수." },
+        { title: "입주 준비", desc: "매매 전 수리, 펀치 리스트, 새 집 셋업, 청소 준비." },
+      ],
+    },
+    featured: {
+      label: "주요 프로젝트",
+      title: "실제 집. 실제 결과.",
+      sub: "DFW 전역에서 최근 진행된 프로젝트.",
+      cta: "비슷한 프로젝트 시작",
+      projects: [
+        { tab: "주방", loc: "PLANO · 2일 작업", title: "모던 주방 리프레시", desc: "캐비닛 리페이싱, 새 손잡이, 백스플래시 보수, 수전 교체, 포인트 페인트. 큰 공사 없이 완전한 분위기 전환.",
+          specs: [{ k: "기간", v: "2일" }, { k: "예산", v: "$$" }, { k: "스타일", v: "모던 미니멀" }] },
+        { tab: "욕실", loc: "FRISCO · 1일 작업", title: "마스터 욕실 업그레이드", desc: "새 세면대, 거울 교체, 수전·샤워헤드 교체, 줄눈 보수, 조명 업그레이드. 호텔 같은 마감.",
+          specs: [{ k: "기간", v: "1일" }, { k: "예산", v: "$$" }, { k: "스타일", v: "스파 모던" }] },
+        { tab: "거실", loc: "CARROLLTON · 1일 작업", title: "오픈 거실 리프레시", desc: "포인트 벽 페인트, 대형 TV 벽걸이 (선 숨김), 플로팅 선반, 몰딩 보수.",
+          specs: [{ k: "기간", v: "1일" }, { k: "예산", v: "$" }, { k: "스타일", v: "웜 컨템포러리" }] },
+        { tab: "야외", loc: "RICHARDSON · 2일 작업", title: "데크 복원", desc: "보드 교체, 난간 재시공, 전체 샌딩 및 스테인.",
+          specs: [{ k: "기간", v: "2일" }, { k: "예산", v: "$$" }, { k: "스타일", v: "클래식 우드" }] },
+      ],
+    },
+    trust: {
+      label: "왜 우리를 선택하는가",
+      title: "신뢰로 짓고,",
+      titleItalic: "정성으로 마무리.",
+      items: [
+        { t: "라이선스 · 보험 완비", d: "100만 달러 일반 책임 보험. 텍사스 주 및 DFW 지역 규정 모두 준수." },
+        { t: "한국어 서비스", d: "한국어·영어 모두 능통. 편안한 의사소통, 명확한 견적, 오해 없음." },
+        { t: "만족 보장", d: "만족하지 못하시면 바로잡습니다. 작업 품질이 우리의 명성." },
+        { t: "고객 우선", d: "시간 엄수. 깔끔한 작업. 명확한 소통. 내 집처럼." },
+      ],
+    },
+    about: {
+      label: "Sean 소개",
+      title: "가장이자",
+      titleItalic: "장인.",
+      p1: "Sean Kim은 캘리포니아에서 hospitality 비즈니스를 운영한 경험을 바탕으로 가족과 함께 노스 텍사스로 이주했습니다. 모든 집 작업에 같은 정성, 고객 서비스, 책임감으로 임합니다.",
+      p2: "이민자 부모님 밑에서 자란 Sean은 한국어와 영어를 자유롭게 구사합니다. 집에 누군가를 들이는 데 필요한 신뢰의 무게를 알기에, 모든 작업에 그 신뢰를 존중합니다.",
+      values: [
+        { n: "01", t: "직접 손으로 작업", d: "모든 디테일을 한 번에 완벽하게." },
+        { n: "02", t: "정직한 소통", d: "명확한 가격, 명확한 일정, 예상 밖 비용 없음." },
+        { n: "03", t: "고객의 집을 존중", d: "깨끗하게, 정리되게, 가족처럼." },
+        { n: "04", t: "두 언어, 한 가지 기준", d: "한국어 환영 — 모든 고객에게 같은 정성." },
+      ],
+    },
+    estimate: {
+      label: "즉시 견적",
+      title: "몇 초만에 가격 확인.",
+      sub: "원하시는 서비스를 선택하면 DFW 지역 일반 가격대를 보여드립니다. 정확한 견적은 현장 방문 후 결정.",
+      pickLabel: "서비스 선택",
+      priceLabel: "일반 가격대",
+      cta: "예약하기",
+      services: [
+        { id: "paint", name: "실내 페인트 (룸당)", low: 300, high: 800, detail: "한 개 룸, 벽 기준. 프리미엄 페인트 2회. 몰딩·천장 별도.", includes: ["표면 준비 및 가벼운 보수", "2회 도장", "테이프·천막 포함", "가구 이동·복구"] },
+        { id: "drywall", name: "드라이월 수리", low: 150, high: 400, detail: "구멍 보수, 손상 부위 교체, 프라이머 및 텍스처 매칭.", includes: ["최대 4곳", "텍스처 매칭", "프라이머 포함", "청소 및 폐기"] },
+        { id: "faucet", name: "수도꼭지 교체", low: 150, high: 300, detail: "기존 제거, 새 제품 설치, 누수 테스트, 정리.", includes: ["기존 제품 제거", "새 수도꼭지 설치", "누수 테스트", "기본 공급 라인"] },
+        { id: "tv", name: "TV 벽걸이", low: 100, high: 250, detail: "75인치까지. 스터드 고정, 수평, 케이블 정리 포함.", includes: ["75인치까지", "스터드 고정", "선 정리", "최종 조정"] },
+        { id: "fan", name: "천장 선풍기 설치", low: 175, high: 350, detail: "기존 박스에 새 선풍기. 배선, 균형, 리모컨 연동.", includes: ["배선·연결", "날개 조립", "균형 조정", "리모컨·스위치"] },
+        { id: "deck", name: "데크 보드 수리", low: 250, high: 700, detail: "썩은 보드 교체, 난간 재고정, 샌딩·스테인.", includes: ["최대 6장", "난간 재고정", "샌딩 포함", "선택적 스테인"] },
+      ],
+    },
+    reviews: {
+      label: "고객 후기",
+      title: "이웃들이",
+      titleItalic: "사랑하는.",
+      basedOn: "구글 리뷰 기준",
+      featured: {
+        quote: "Sean은 시간 약속도 정확하고 한국어·영어 모두 잘 통해서 한 번 방문에 다섯 가지 일을 다 해결해 주셨어요. 드라이월·페인트 작업은 어디 손상됐었는지 안 보일 정도. 다음 달 또 예약했습니다.",
+        name: "김민정",
+        loc: "Plano · 인증된 구글 리뷰",
+        initial: "민",
+      },
+      items: [
+        { quote: "정직한 가격, 무리한 권유 없음. 사진 보낸 지 한 시간 만에 견적 받았어요. 추천합니다.", name: "David R.", loc: "Frisco", initial: "D" },
+        { quote: "친절하고 꼼꼼하게 일해 주셨어요. 작은 일도 정성껏, 가격도 합리적.", name: "이혜진", loc: "Carrollton", initial: "혜" },
+        { quote: "TV 3대, 천장 선풍기, 벽 보수 2곳을 4시간 만에. 깔끔하고 신중하게.", name: "Jennifer T.", loc: "McKinney", initial: "J" },
+        { quote: "시작 전에 모두 설명해 주시고 처음 견적 그대로 끝났어요.", name: "Marcus W.", loc: "Richardson", initial: "M" },
+        { quote: "배관공이 $800 든다던 누수를 $180에 해결. 주말을 살려주셨어요.", name: "Sarah B.", loc: "Allen", initial: "S" },
+      ],
+    },
+    form: {
+      label: "견적 요청",
+      title: "프로젝트에",
+      titleItalic: "대해 알려주세요.",
+      sub: "아래 양식을 작성해 주시면 Sean이 24시간 이내 무료 견적과 함께 연락드립니다.",
+      callLabel: "전화 또는 문자",
+      hours: "월–토 · 오전 8시 – 오후 7시",
+      emailLabel: "이메일",
+      replyTime: "24시간 이내 회신",
+      serviceLabel: "서비스 지역",
+      name: "성함",
+      namePh: "홍길동",
+      phone: "전화번호",
+      email: "이메일",
+      serviceType: "필요한 서비스",
+      types: ["일반 수리", "페인트", "배관", "전기", "홈 임프루브먼트", "기타"],
+      describe: "작업 내용 설명",
+      describePh: "간단한 설명을 적어주시면 준비하고 적절한 도구를 가져갈 수 있습니다…",
+      photo: "사진 첨부 (선택)",
+      photoCta: "탭하여 업로드",
+      photoHint: "JPG 또는 PNG · 최대 10MB",
+      photoSwap: "탭하여 사진 변경",
+      submit: "무료 견적 요청 보내기",
+      privacy: "고객 정보는 절대 공유되지 않습니다. 견적은 100% 무료.",
+      success: { t: "견적 요청이 접수되었습니다!", d: "Sean이 24시간 이내 문자 또는 이메일로 연락드립니다. 긴급 사항은 (972) 999-8888로 전화 주세요.", again: "다른 요청 보내기" },
+    },
+    faq: {
+      title: "자주 묻는 질문.",
+      items: [
+        { q: "라이선스와 보험이 있나요?", a: "네. FixWithKim은 100만 달러 일반 책임 보험을 보유하고 있으며, 텍사스 주 및 지역 규정을 모두 준수합니다." },
+        { q: "서비스 지역은 어디인가요?", a: "주요 서비스 지역은 Carrollton, Plano, Frisco, Richardson, Lewisville, Allen, McKinney, The Colony, Addison입니다." },
+        { q: "얼마나 빨리 응답하시나요?", a: "견적은 보통 24시간 이내, 종종 당일 회신. 긴급 상황은 가능한 한 몇 시간 내 처리." },
+        { q: "견적은 무료인가요?", a: "네. 모든 견적은 무료이며 의무 없음. 현장 방문 후 서면 견적을 드립니다." },
+        { q: "결제 방법은?", a: "현금, 수표, Zelle, Venmo, 신용카드 (3% 수수료). 결제는 작업 완료 후." },
+        { q: "한국어 가능한가요?", a: "네 — Sean은 한국어·영어 모두 능통합니다. 한국어로 편하게 연락 주세요." },
+      ],
+    },
+    finalCta: {
+      title: "준비되시면",
+      titleItalic: "언제든.",
+      sub: "24시간 이내 무료 견적. 의무 없음, 부담 없음. 당신의 집을 마땅한 모습으로.",
+      cta1: "무료 견적 받기",
+      cta2: "(972) 999-8888",
+    },
+    chat: {
+      online: "온라인 · 몇 분 내 응답",
+      msg1: "안녕하세요! Sean입니다. FixWithKim에 들러주셔서 감사합니다 👋",
+      msg2: "어떤 프로젝트를 생각하고 계신가요? 한국어·영어 모두 가능합니다.",
+      placeholder: "메시지 입력…",
+    },
+    mobile: { call: "전화", quote: "무료 견적" },
+    footer: {
+      tag: "달라스-포트워스 전역의 프리미엄 한·영 핸디맨 서비스. 정직한 작업, 합리적인 가격.",
+      col1: "서비스",
+      col2: "서비스 지역",
+      col3: "연락처",
+      rights: "All rights reserved.",
+      bilingual: "한국어 · English",
+    },
+  },
+};
+
+
+//------------------------------------------------------------------
+// Mount
+//------------------------------------------------------------------
+// Render the site immediately (behind the intro overlay) so it's ready
+// the moment the hanko intro lifts away.
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(FixWithKim));
+
+// Remove the intro overlay from the DOM once its exit animation finishes
+// (~2.5s total). Falls back to a timeout in case animationend doesn't fire.
+(function () {
+  const intro = document.getElementById('fw-intro');
+  if (!intro) return;
+  let done = false;
+  const cleanup = function () {
+    if (done) return;
+    done = true;
+    intro.style.display = 'none';
+    if (intro.parentNode) intro.parentNode.removeChild(intro);
+  };
+  intro.addEventListener('animationend', function (e) {
+    // Only clean up on the overlay's own exit animation
+    if (e.animationName === 'fwIntroExit') cleanup();
+  });
+  setTimeout(cleanup, 3000); // safety fallback
+})();
+</script>
+</body>
+</html>
